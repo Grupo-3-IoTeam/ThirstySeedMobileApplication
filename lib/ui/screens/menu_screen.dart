@@ -42,6 +42,7 @@ class MenuScreenState extends State<MenuScreen> {
             icon: Icon(Icons.home),
             label: 'Inicio',
           ),
+<<<<<<< Updated upstream
           BottomNavigationBarItem(
             icon: Icon(Icons.notifications),
             label: 'Notificaciones',
@@ -49,6 +50,77 @@ class MenuScreenState extends State<MenuScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
             label: 'Cuenta',
+=======
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.symmetric(vertical: 16.0), // Sin padding lateral
+              children: [
+                _buildMenuOption(
+                  icon: Icons.settings,
+                  text: "Administrar parcelas",
+                  color: Colors.green,
+                  onTap: () {
+                    // Agregar funcionalidad para "Administrar parcelas"
+                  },
+                ),
+                _buildMenuOption(
+                  icon: Icons.remove_red_eye,
+                  text: "Ver estado de parcelas",
+                  color: Colors.blue,
+                  onTap: () {
+                    // Agregar funcionalidad para "Ver estado de parcelas"
+                  },
+                ),
+                _buildMenuOption(
+                  icon: Icons.schedule,
+                  text: "Riegos programados",
+                  color: Colors.teal,
+                  onTap: () {
+                    // Agregar funcionalidad para "Riegos programados"
+                  },
+                ),
+                _buildMenuOption(
+                  icon: Icons.insert_chart,
+                  text: "Reportes de riego",
+                  color: Colors.orange,
+                  onTap: () {
+                    // Agregar funcionalidad para "Reportes de riego"
+                  },
+                ),
+                _buildMenuOption(
+                  icon: Icons.notifications,
+                  text: "Notificaciones",
+                  color: Colors.amber,
+                  onTap: () {
+                    setState(() {
+                      _selectedIndex = 1;
+                    });
+                  },
+                ),
+                _buildMenuOption(
+                  icon: Icons.person,
+                  text: "Cuenta",
+                  color: Colors.lightBlue,
+                  onTap: () {
+                    // Navegar a AccountScreen
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const AccountScreen()),
+                    );
+                  },
+                ),
+                const SizedBox(height: 70.0),
+                _buildMenuOption(
+                  icon: Icons.exit_to_app,
+                  text: "Salir",
+                  color: Colors.blueAccent,
+                  onTap: () {
+                    // Agregar funcionalidad para salir de la app
+                  },
+                ),
+              ],
+            ),
+>>>>>>> Stashed changes
           ),
         ],
         currentIndex: _selectedIndex,
