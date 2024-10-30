@@ -5,3 +5,9 @@
     -->
     <uses-permission android:name="android.permission.INTERNET"/>
 </manifest>
+<application
+    android:label="your_app_name"
+    android:enableOnBackInvokedCallback="true"  <!-- Agrega esta línea -->
+    android:icon="@mipmap/ic_launcher">
+    ...
+</application>

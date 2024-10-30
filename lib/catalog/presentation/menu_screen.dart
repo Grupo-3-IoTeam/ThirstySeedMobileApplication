@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import '../application/fetch_user_profile.dart';
 import 'home_screen.dart';
 import 'account_screen.dart';
 import 'notifications_screen.dart';
+
+// Importa los repositorios y casos de uso necesarios para el DDD
+import '../infrastructure/data_sources/user_data_source.dart';
+import '../infrastructure/repositories/user_repository.dart';
 
 class MenuScreen extends StatefulWidget {
   const MenuScreen({super.key});
@@ -13,14 +18,19 @@ class MenuScreen extends StatefulWidget {
 class MenuScreenState extends State<MenuScreen> {
   int _selectedIndex = 0;
 
+  // Agregar HomeScreen y NotificationsScreen como antes
   static const List<Widget> _screens = <Widget>[
     HomeScreen(),
     NotificationsScreen(),
-    AccountScreen(),
   ];
 
   @override
   Widget build(BuildContext context) {
+    // Crear las instancias necesarias para pasar el fetchUserProfile
+    final userDataSource = UserDataSource();
+    final userRepository = UserRepository(userDataSource);
+    final fetchUserProfile = FetchUserProfile(userRepository);
+
     return Scaffold(
       body: Column(
         children: [
@@ -45,8 +55,6 @@ class MenuScreenState extends State<MenuScreen> {
                     color: Colors.black,
                   ),
                 ),
-                
-                
               ],
             ),
           ),
@@ -101,10 +109,12 @@ class MenuScreenState extends State<MenuScreen> {
                   text: "Cuenta",
                   color: Colors.lightBlue,
                   onTap: () {
-                    // Navegar a AccountScreen
+                    // Navegar a AccountScreen con fetchUserProfile
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const AccountScreen()),
+                      MaterialPageRoute(
+                        builder: (context) => AccountScreen(fetchUserProfile: fetchUserProfile),
+                      ),
                     );
                   },
                 ),
