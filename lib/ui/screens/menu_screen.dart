@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'home_screen.dart';
-import 'account_screen.dart';
-import 'notifications_screen.dart';
 
 class MenuScreen extends StatefulWidget {
   const MenuScreen({super.key});
@@ -11,14 +8,6 @@ class MenuScreen extends StatefulWidget {
 }
 
 class MenuScreenState extends State<MenuScreen> {
-  int _selectedIndex = 0;
-
-  static const List<Widget> _screens = <Widget>[
-    HomeScreen(),
-    NotificationsScreen(),
-    AccountScreen(),
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,15 +18,15 @@ class MenuScreenState extends State<MenuScreen> {
             width: double.infinity, // Ancho completo
             color: Colors.green[100],
             padding: const EdgeInsets.all(16.0),
-            child: Row(
+            child: const Row(
               children: [
                 Icon(
                   Icons.eco, // Icono de Flutter
                   color: Colors.green,
                   size: 40,
                 ),
-                const SizedBox(width: 10),
-                const Text(
+                SizedBox(width: 10),
+                Text(
                   'Thirsty Seed',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
@@ -92,7 +81,6 @@ class MenuScreenState extends State<MenuScreen> {
                   color: Colors.amber,
                   onTap: () {
                     setState(() {
-                      _selectedIndex = 1;
                     });
                   },
                 ),
@@ -102,7 +90,6 @@ class MenuScreenState extends State<MenuScreen> {
                   color: Colors.lightBlue,
                   onTap: () {
                     setState(() {
-                      _selectedIndex = 2;
                     });
                   },
                 ),
