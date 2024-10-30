@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import 'account_screen.dart';
 import 'notifications_screen.dart';
-import 'plot_status_screen.dart';
-
+import '../../irrigation/presentation/plot_status_screen.dart';
+import '../../irrigation/application/fetch_plots.dart';
+import '../../irrigation/infrastructure/data_sources/plot_data_source.dart';
+import '../../irrigation/infrastructure/repositories/plot_repository.dart';
 
 class MenuScreen extends StatefulWidget {
   const MenuScreen({super.key});
@@ -15,26 +17,30 @@ class MenuScreen extends StatefulWidget {
 class MenuScreenState extends State<MenuScreen> {
   int _selectedIndex = 0;
 
-  static const List<Widget> _screens = <Widget>[
-    HomeScreen(),
-    NotificationsScreen(),
-    AccountScreen(),
-  ];
+  late final FetchPlots fetchPlots;
+
+  @override
+  void initState() {
+    super.initState();
+    // Inicializamos las dependencias para fetchPlots
+    final plotDataSource = PlotDataSource();
+    final plotRepository = PlotRepository(plotDataSource);
+    fetchPlots = FetchPlots(plotRepository);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Column(
         children: [
-          // Encabezado personalizado que abarca toda la pantalla
           Container(
-            width: double.infinity, // Ancho completo
+            width: double.infinity,
             color: Colors.green[100],
             padding: const EdgeInsets.all(16.0),
             child: Row(
               children: [
                 Icon(
-                  Icons.eco, // Icono de Flutter
+                  Icons.eco,
                   color: Colors.green,
                   size: 40,
                 ),
@@ -47,32 +53,29 @@ class MenuScreenState extends State<MenuScreen> {
                     color: Colors.black,
                   ),
                 ),
-                
-                
               ],
             ),
           ),
           Expanded(
             child: ListView(
-              padding: const EdgeInsets.symmetric(vertical: 16.0), // Sin padding lateral
+              padding: const EdgeInsets.symmetric(vertical: 16.0),
               children: [
                 _buildMenuOption(
                   icon: Icons.settings,
                   text: "Administrar parcelas",
                   color: Colors.green,
-                  onTap: () {
-                    
-                  },
+                  onTap: () {},
                 ),
                 _buildMenuOption(
                   icon: Icons.remove_red_eye,
                   text: "Ver estado de parcelas",
                   color: Colors.blue,
                   onTap: () {
-                    // Agregar funcionalidad para "Ver estado de parcelas"
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const PlotStatusScreen()),
+                      MaterialPageRoute(
+                        builder: (context) => PlotStatusScreen(fetchPlots: fetchPlots),
+                      ),
                     );
                   },
                 ),
@@ -80,17 +83,13 @@ class MenuScreenState extends State<MenuScreen> {
                   icon: Icons.schedule,
                   text: "Riegos programados",
                   color: Colors.teal,
-                  onTap: () {
-                    // Agregar funcionalidad para "Riegos programados"
-                  },
+                  onTap: () {},
                 ),
                 _buildMenuOption(
                   icon: Icons.insert_chart,
                   text: "Reportes de riego",
                   color: Colors.orange,
-                  onTap: () {
-                    // Agregar funcionalidad para "Reportes de riego"
-                  },
+                  onTap: () {},
                 ),
                 _buildMenuOption(
                   icon: Icons.notifications,
@@ -106,19 +105,14 @@ class MenuScreenState extends State<MenuScreen> {
                   icon: Icons.person,
                   text: "Cuenta",
                   color: Colors.lightBlue,
-                  onTap: () {
-                    // Navegar a AccountScreen
-                    
-                  },
+                  onTap: () {},
                 ),
                 const SizedBox(height: 70.0),
                 _buildMenuOption(
                   icon: Icons.exit_to_app,
                   text: "Salir",
                   color: Colors.blueAccent,
-                  onTap: () {
-                    // Agregar funcionalidad para salir de la app
-                  },
+                  onTap: () {},
                 ),
               ],
             ),
