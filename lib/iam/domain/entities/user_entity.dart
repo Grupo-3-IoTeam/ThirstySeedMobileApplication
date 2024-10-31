@@ -1,3 +1,6 @@
+import 'package:thirstyseed/profile/domain/entities/plot_entity.dart';
+import 'package:thirstyseed/profile/domain/entities/water_supplier_entity.dart';
+
 class User {
   final String id;
   final String name;
@@ -7,6 +10,8 @@ class User {
   final String email;
   final String password;
   final String imageUrl;
+  final List<Plot> plots;
+  final WaterSupplier waterSupplier;
 
   User({
     required this.id,
@@ -17,23 +22,29 @@ class User {
     required this.email,
     required this.password,
     required this.imageUrl,
+    required this.plots,
+    required this.waterSupplier,
   });
 
-  // Convertir JSON a objeto User
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      id: json['id'],
-      name: json['name'],
-      lastName: json['lastName'],
-      city: json['city'],
-      telephone: json['telephone'],
-      email: json['email'],
-      password: json['password'],
-      imageUrl: json['imageUrl'],
+      id: json['id'] ?? '',
+      name: json['name'] ?? '',
+      lastName: json['lastName'] ?? '',
+      city: json['city'] ?? '',
+      telephone: json['telephone'] ?? '',
+      email: json['email'] ?? '',
+      password: json['password'] ?? '',
+      imageUrl: json['imageUrl'] ?? '',
+      plots: (json['plots'] as List? ?? [])
+          .map((plot) => Plot.fromJson(plot))
+          .toList(),
+      waterSupplier: json['waterSupplier'] != null
+          ? WaterSupplier.fromJson(json['waterSupplier'])
+          : WaterSupplier(name: 'Unknown', logo: ''),
     );
   }
 
-  // Convertir objeto User a JSON
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -43,7 +54,11 @@ class User {
       'telephone': telephone,
       'email': email,
       'password': password,
-      'imageUrl': imageUrl,
+      'plots': plots.map((plot) => plot.toJson()).toList(),
+      'waterSupplier': waterSupplier.toJson(),
+       'imageUrl': imageUrl,
     };
   }
 }
+  
+

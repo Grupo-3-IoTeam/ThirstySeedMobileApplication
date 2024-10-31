@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:thirstyseed/iam/application/auth_service.dart';
 import 'package:thirstyseed/iam/presentation/login_screen.dart';
-
+import 'package:thirstyseed/profile/presentation/account_screen.dart';
+import 'package:thirstyseed/iam/domain/entities/user_entity.dart';
 
 class MenuScreen extends StatefulWidget {
   final AuthService authService;
+  final User currentUser;
 
-  const MenuScreen({Key? key, required this.authService}) : super(key: key);
+  const MenuScreen({Key? key, required this.authService, required this.currentUser}) : super(key: key);
 
   @override
   MenuScreenState createState() => MenuScreenState();
@@ -17,7 +19,12 @@ class MenuScreenState extends State<MenuScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WillPopScope(
+      onWillPop: () async {
+        // Esto evita que la app se cierre al retroceder
+        return false;
+      },
+      child: Scaffold(
       body: Column(
         children: [
           Container(
@@ -51,41 +58,54 @@ class MenuScreenState extends State<MenuScreen> {
                   icon: Icons.settings,
                   text: "Administrar parcelas",
                   color: Colors.green,
-                  onTap: () {},
+                  onTap: () {
+                    // Lógica para "Administrar parcelas"
+                  },
                 ),
                 _buildMenuOption(
                   icon: Icons.remove_red_eye,
                   text: "Ver estado de parcelas",
                   color: Colors.blue,
-                  onTap: () {},
+                  onTap: () {
+                    // Lógica para "Ver estado de parcelas"
+                  },
                 ),
                 _buildMenuOption(
                   icon: Icons.schedule,
                   text: "Riegos programados",
                   color: Colors.teal,
-                  onTap: () {},
+                  onTap: () {
+                    // Lógica para "Riegos programados"
+                  },
                 ),
                 _buildMenuOption(
                   icon: Icons.insert_chart,
                   text: "Reportes de riego",
                   color: Colors.orange,
-                  onTap: () {},
+                  onTap: () {
+                    // Lógica para "Reportes de riego"
+                  },
                 ),
                 _buildMenuOption(
                   icon: Icons.notifications,
                   text: "Notificaciones",
                   color: Colors.amber,
                   onTap: () {
-                    setState(() {
-                      _selectedIndex = 1;
-                    });
+                    // Lógica para "Notificaciones"
                   },
                 ),
                 _buildMenuOption(
                   icon: Icons.person,
                   text: "Cuenta",
                   color: Colors.lightBlue,
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => AccountScreen(user: widget.currentUser),
+                      ),
+                    );
+                  },
                 ),
                 const SizedBox(height: 70.0),
                 _buildMenuOption(
@@ -93,7 +113,6 @@ class MenuScreenState extends State<MenuScreen> {
                   text: "Salir",
                   color: Colors.blueAccent,
                   onTap: () {
-                    // Navega de vuelta a la pantalla de login
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
@@ -107,7 +126,7 @@ class MenuScreenState extends State<MenuScreen> {
           ),
         ],
       ),
-    );
+    ));
   }
 
   Widget _buildMenuOption({

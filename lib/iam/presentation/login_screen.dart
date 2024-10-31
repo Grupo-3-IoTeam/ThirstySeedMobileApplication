@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:thirstyseed/iam/presentation/create_account_screen.dart';
 import '../application/auth_service.dart';
-import '/ui/screens/menu_screen.dart';
-import 'create_account_screen.dart';
+import '../../ui/screens/menu_screen.dart';
+import '../domain/entities/user_entity.dart';
 
 class LoginScreen extends StatefulWidget {
   final AuthService authService;
@@ -25,7 +26,7 @@ class _LoginScreenState extends State<LoginScreen> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => MenuScreen(authService: widget.authService),
+          builder: (context) => MenuScreen(authService: widget.authService, currentUser: user),
         ),
       );
       ScaffoldMessenger.of(context).showSnackBar(
@@ -40,7 +41,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WillPopScope(
+      onWillPop: () async {
+        // Esto evita que la app se cierre al retroceder
+        return false;
+      },
+      child: Scaffold(
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 32.0),
@@ -62,7 +68,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 onPressed: () {
                   // Acción para recuperar contraseña
                 },
-                child: const Text('Forgot password?', style: TextStyle(color: Colors.green)),
+                child: const Text(
+                  'Forgot password?',
+                  style: TextStyle(color: Colors.green),
+                ),
               ),
               const SizedBox(height: 24),
               Row(
@@ -80,10 +89,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(width: 8),
                   OutlinedButton(
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => CreateAccountScreen(authService: widget.authService)),
-                      );
+                       Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CreateAccountScreen(authService: widget.authService),
+      ),
+    );
+                      
+                      
                     },
                     style: OutlinedButton.styleFrom(
                       side: BorderSide(color: Colors.green),
@@ -97,8 +110,8 @@ class _LoginScreenState extends State<LoginScreen> {
             ],
           ),
         ),
-      ),
-    );
+      )
+    ));
   }
 
   Widget _buildTextField(TextEditingController controller, String label, {bool obscureText = false}) {

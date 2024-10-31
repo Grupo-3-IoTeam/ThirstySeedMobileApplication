@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:thirstyseed/profile/domain/entities/water_supplier_entity.dart';
 import '../application/auth_service.dart';
 import '../domain/entities/user_entity.dart';
+
 
 class CreateAccountScreen extends StatefulWidget {
   final AuthService authService;
@@ -18,18 +20,22 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
   final _telephoneController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _phoneController = TextEditingController();
 
   void _signup() async {
     final newUser = User(
-      id: DateTime.now().millisecondsSinceEpoch.toString(), // Genera un ID único
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
       name: _nameController.text,
       lastName: _lastNameController.text,
       city: _cityController.text,
       telephone: _telephoneController.text,
       email: _emailController.text,
       password: _passwordController.text,
-      imageUrl: '', // Añade una URL de imagen si es necesario
+      imageUrl: '', // Puedes agregar una URL de imagen predeterminada o dejarla vacía
+      plots: [], // Valor predeterminado: lista vacía de parcelas
+      waterSupplier: WaterSupplier(
+        name: 'Default Supplier',
+        logo: 'https://example.com/default-logo.png', // URL de logo predeterminada
+      ),
     );
 
     final success = await widget.authService.signup(newUser);
@@ -74,7 +80,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                 children: [
                   Expanded(child: _buildTextField(_cityController, 'City')),
                   const SizedBox(width: 10),
-                  Expanded(child: _buildTextField(_phoneController, 'Telephone')),
+                  Expanded(child: _buildTextField(_telephoneController, 'Telephone')),
                 ],
               ),
               const SizedBox(height: 16),
