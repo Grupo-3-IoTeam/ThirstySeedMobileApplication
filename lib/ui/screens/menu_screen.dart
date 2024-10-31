@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'home_screen.dart';
-import 'account_screen.dart';
-import 'notifications_screen.dart';
+import 'package:thirstyseed/iam/application/auth_service.dart';
+import 'package:thirstyseed/iam/presentation/login_screen.dart';
+
 
 class MenuScreen extends StatefulWidget {
-  const MenuScreen({super.key});
+  final AuthService authService;
+
+  const MenuScreen({Key? key, required this.authService}) : super(key: key);
 
   @override
   MenuScreenState createState() => MenuScreenState();
@@ -13,47 +15,115 @@ class MenuScreen extends StatefulWidget {
 class MenuScreenState extends State<MenuScreen> {
   int _selectedIndex = 0;
 
-  static const List<Widget> _screens = <Widget>[
-    HomeScreen(),
-    NotificationsScreen(),
-    AccountScreen(),
-  ];
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Thirsty Seed',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-      ),
-      body: _screens[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Inicio',
+      body: Column(
+        children: [
+          Container(
+            width: double.infinity,
+            color: Colors.green[100],
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.eco,
+                  color: Colors.green,
+                  size: 40,
+                ),
+                const SizedBox(width: 10),
+                const Text(
+                  'Thirsty Seed',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                    color: Colors.black,
+                  ),
+                ),
+              ],
+            ),
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.notifications),
-            label: 'Notificaciones',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Cuenta',
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.symmetric(vertical: 16.0),
+              children: [
+                _buildMenuOption(
+                  icon: Icons.settings,
+                  text: "Administrar parcelas",
+                  color: Colors.green,
+                  onTap: () {},
+                ),
+                _buildMenuOption(
+                  icon: Icons.remove_red_eye,
+                  text: "Ver estado de parcelas",
+                  color: Colors.blue,
+                  onTap: () {},
+                ),
+                _buildMenuOption(
+                  icon: Icons.schedule,
+                  text: "Riegos programados",
+                  color: Colors.teal,
+                  onTap: () {},
+                ),
+                _buildMenuOption(
+                  icon: Icons.insert_chart,
+                  text: "Reportes de riego",
+                  color: Colors.orange,
+                  onTap: () {},
+                ),
+                _buildMenuOption(
+                  icon: Icons.notifications,
+                  text: "Notificaciones",
+                  color: Colors.amber,
+                  onTap: () {
+                    setState(() {
+                      _selectedIndex = 1;
+                    });
+                  },
+                ),
+                _buildMenuOption(
+                  icon: Icons.person,
+                  text: "Cuenta",
+                  color: Colors.lightBlue,
+                  onTap: () {},
+                ),
+                const SizedBox(height: 70.0),
+                _buildMenuOption(
+                  icon: Icons.exit_to_app,
+                  text: "Salir",
+                  color: Colors.blueAccent,
+                  onTap: () {
+                    // Navega de vuelta a la pantalla de login
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => LoginScreen(authService: widget.authService),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
         ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.teal,
-        onTap: _onItemTapped,
+      ),
+    );
+  }
+
+  Widget _buildMenuOption({
+    required IconData icon,
+    required String text,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return Card(
+      elevation: 3,
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      child: ListTile(
+        leading: Icon(icon, color: color),
+        title: Text(text),
+        onTap: onTap,
       ),
     );
   }
