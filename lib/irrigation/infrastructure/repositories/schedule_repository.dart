@@ -1,5 +1,5 @@
-import 'package:thirstyseed/irrigation/infrastructure/data_sources/schedule_local_data_provider.dart';
-import 'package:thirstyseed/irrigation/infrastructure/data_sources/schedule_remote_data_provider.dart';
+import 'package:thirstyseed/irrigation/infrastructure/data-sources/schedule_local_data_provider.dart';
+import 'package:thirstyseed/irrigation/infrastructure/data-sources/schedule_remote_data_provider.dart';
 import 'package:thirstyseed/irrigation/infrastructure/models/schedule_model.dart';
 import 'package:thirstyseed/irrigation/domain/entities/schedule.dart';
 import 'package:thirstyseed/common/platform/connectivity.dart';
