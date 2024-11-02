@@ -1,4 +1,3 @@
-import 'package:thirstyseed/irrigation/infrastructure/data-sources/schedule_local_data_provider.dart';
 import 'package:thirstyseed/irrigation/infrastructure/data-sources/schedule_remote_data_provider.dart';
 import 'package:thirstyseed/irrigation/infrastructure/models/schedule_model.dart';
 import 'package:thirstyseed/irrigation/domain/entities/schedule.dart';
@@ -6,12 +5,10 @@ import 'package:thirstyseed/common/platform/connectivity.dart';
 
 class ScheduleRepository {
   final Connectivity connectivity;
-  final ScheduleLocalDataProvider localDataProvider;
   final ScheduleRemoteDataProvider remoteDataProvider;
 
   ScheduleRepository({
     required this.connectivity,
-    required this.localDataProvider,
     required this.remoteDataProvider,
   });
 
@@ -19,18 +16,15 @@ class ScheduleRepository {
   Future<List<Schedule>> fetchSchedules() async {
     if (await connectivity.isConnected()) {
       try {
-        // Si hay conexión, obtener datos remotos y almacenarlos en cache local
+        // Si hay conexión, obtener datos remotos
         final List<ScheduleModel> remoteSchedules = await remoteDataProvider.fetchSchedules();
-        await localDataProvider.cacheSchedules(remoteSchedules);
         return remoteSchedules;
       } catch (e) {
         print("Error fetching schedules remotely: $e");
-        // En caso de error, intenta obtener los datos de la cache local
-        return await localDataProvider.fetchSchedules();
+        throw Exception("Error fetching schedules: $e");
       }
     } else {
-      // Sin conexión, obtiene los datos de la cache local
-      return await localDataProvider.fetchSchedules();
+      throw Exception("No internet connection. Cannot fetch schedules.");
     }
   }
 
@@ -38,18 +32,15 @@ class ScheduleRepository {
   Future<Schedule?> getSchedule(String id) async {
     if (await connectivity.isConnected()) {
       try {
-        // Si hay conexión, obtiene el schedule remoto y lo guarda en cache
+        // Si hay conexión, obtiene el schedule remoto
         final ScheduleModel remoteSchedule = await remoteDataProvider.getSchedule(id);
-        await localDataProvider.cacheSchedule(remoteSchedule);
         return remoteSchedule;
       } catch (e) {
         print("Error fetching schedule remotely: $e");
-        // En caso de error, intenta obtener el schedule de la cache local
-        return await localDataProvider.getSchedule(id);
+        throw Exception("Error fetching schedule: $e");
       }
     } else {
-      // Sin conexión, obtiene el schedule de la cache local
-      return await localDataProvider.getSchedule(id);
+      throw Exception("No internet connection. Cannot fetch schedule.");
     }
   }
 
@@ -57,9 +48,8 @@ class ScheduleRepository {
   Future<Schedule> createSchedule(ScheduleModel schedule) async {
     if (await connectivity.isConnected()) {
       try {
-        // Crear el schedule remotamente y guardarlo en la cache local
+        // Crear el schedule remotamente
         final ScheduleModel createdSchedule = await remoteDataProvider.createSchedule(schedule);
-        await localDataProvider.cacheSchedule(createdSchedule);
         return createdSchedule;
       } catch (e) {
         throw Exception("Error creating schedule: $e");
@@ -73,9 +63,8 @@ class ScheduleRepository {
   Future<void> deleteSchedule(String id) async {
     if (await connectivity.isConnected()) {
       try {
-        // Elimina el schedule remotamente y también de la cache local
+        // Elimina el schedule remotamente
         await remoteDataProvider.deleteSchedule(id);
-        await localDataProvider.deleteSchedule(id);
       } catch (e) {
         throw Exception("Error deleting schedule: $e");
       }

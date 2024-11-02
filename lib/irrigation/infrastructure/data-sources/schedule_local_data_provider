@@ -1,6 +1,5 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-
 import 'package:thirstyseed/irrigation/infrastructure/models/schedule_model.dart';
 
 class ScheduleLocalDataProvider {

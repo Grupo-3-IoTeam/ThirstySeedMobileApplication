@@ -1,6 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:thirstyseed/irrigation/application/schedule_facade_service.dart';
-import 'package:thirstyseed/irrigation/infrastructure/data-sources/schedule_local_data_provider.dart';
+//import 'package:thirstyseed/irrigation/infrastructure/data-sources/schedule_local_data_provider.dart';
 import 'package:thirstyseed/irrigation/infrastructure/data-sources/schedule_remote_data_provider.dart';
 import 'package:thirstyseed/irrigation/infrastructure/repositories/schedule_repository.dart';
 import 'package:thirstyseed/common/platform/connectivity.dart';
@@ -8,40 +8,29 @@ import 'package:thirstyseed/common/platform/connectivity.dart';
 final GetIt serviceLocator = GetIt.instance;
 
 Future<void> init() async {
-  // Dependencias de la capa de irrigación
-  irrigationDependencies();
+  await irrigationDependencies();
 }
 
 Future<void> irrigationDependencies() async {
-  // Presentation Layer
-
   // Application Layer
-  serviceLocator.registerLazySingleton(
+  serviceLocator.registerLazySingleton<ScheduleFacadeService>(
     () => ScheduleFacadeService(
-      repository: serviceLocator(),
+      repository: serviceLocator<ScheduleRepository>(),
     ),
   );
 
   // Infrastructure Layer
-  serviceLocator.registerLazySingleton(
+  serviceLocator.registerLazySingleton<ScheduleRepository>(
     () => ScheduleRepository(
-      connectivity: serviceLocator(),
-      localDataProvider: serviceLocator(),
-      remoteDataProvider: serviceLocator(),
+      connectivity: serviceLocator<Connectivity>(),
+//      localDataProvider: serviceLocator<ScheduleLocalDataProvider>(),
+      remoteDataProvider: serviceLocator<ScheduleRemoteDataProvider>(),
     ),
   );
 
-  // Infrastructure Layer
-  serviceLocator.registerLazySingleton(
-    () => ScheduleLocalDataProvider(),
-  );
-
-  serviceLocator.registerLazySingleton(
-    () => ScheduleRemoteDataProvider(),
-  );
+ // serviceLocator.registerLazySingleton<ScheduleLocalDataProvider>(() => ScheduleLocalDataProvider());
+  serviceLocator.registerLazySingleton<ScheduleRemoteDataProvider>(() => ScheduleRemoteDataProvider());
 
   // Common - Connectivity
-  serviceLocator.registerLazySingleton(
-    () => Connectivity(),
-  );
+  serviceLocator.registerLazySingleton<Connectivity>(() => Connectivity());
 }

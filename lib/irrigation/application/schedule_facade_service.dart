@@ -15,9 +15,24 @@ class ScheduleFacadeService with IrrigationLogic {
     return await repository.fetchSchedules();
   }
 
-  // Método para obtener un schedule por ID
-  Future<Schedule?> getSchedule(String id) async {
-    return await repository.getSchedule(id);
+  // Método para obtener un schedule por ID, siempre retorna un ScheduleModel
+  Future<ScheduleModel?> getSchedule(String id) async {
+    final schedule = await repository.getSchedule(id);
+    if (schedule == null) return null;
+    
+    // Convertir Schedule a ScheduleModel
+    return ScheduleModel(
+      id: schedule.id,
+      plotId: schedule.plotId,
+      waterAmount: schedule.waterAmount,
+      pressure: schedule.pressure,
+      sprinklerRadius: schedule.sprinklerRadius,
+      expectedMoisture: schedule.expectedMoisture,
+      estimatedTimeHours: schedule.estimatedTimeHours,
+      setTime: schedule.setTime,
+      angle: schedule.angle,
+      isAutomatic: schedule.isAutomatic,
+    );
   }
 
   // Método para crear un nuevo schedule

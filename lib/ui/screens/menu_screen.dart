@@ -64,7 +64,7 @@ class MenuScreenState extends State<MenuScreen> {
                   text: "Riegos programados",
                   color: Colors.teal,
                   onTap: () {
-                    // Agregar funcionalidad para "Riegos programados"
+                    Navigator.pushNamed(context, '/scheduleList');
                   },
                 ),
                 _buildMenuOption(
