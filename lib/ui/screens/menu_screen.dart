@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import 'account_screen.dart';
 import 'notifications_screen.dart';
-import '../../irrigation/presentation/plot_status_screen.dart';
+import '../../plots/presentation/plot_status_screen.dart';
 import '../../irrigation/application/fetch_plots.dart';
 import '../../irrigation/infrastructure/data_sources/plot_data_source.dart';
 import '../../irrigation/infrastructure/repositories/plot_repository.dart';
