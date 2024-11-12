@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
-import 'register_plot_screen.dart';
 import 'package:flutter/services.dart' as rootBundle;
+import 'package:thirstyseed/plots/presentation/register_plot_screen.dart';
 
 
 class PlotScreen extends StatefulWidget {

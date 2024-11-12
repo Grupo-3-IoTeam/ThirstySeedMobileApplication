@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import 'account_screen.dart';
 import 'notifications_screen.dart';
-import 'plot_screen.dart';
+import '../../plots/presentation/plot_screen.dart';
 
 class MenuScreen extends StatefulWidget {
   const MenuScreen({super.key});
