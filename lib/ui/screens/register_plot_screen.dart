@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'register_node_screen.dart';
+import '../../node/presentation/register_node_screen.dart';
 
 class RegisterPlotScreen extends StatefulWidget {
   const RegisterPlotScreen({super.key});
