@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:thirstyseed/profile/domain/entities/water_supplier_entity.dart';
 import '../application/auth_service.dart';
 import '../domain/entities/user_entity.dart';
-
 
 class CreateAccountScreen extends StatefulWidget {
   final AuthService authService;
@@ -14,39 +12,32 @@ class CreateAccountScreen extends StatefulWidget {
 }
 
 class _CreateAccountScreenState extends State<CreateAccountScreen> {
-  final _nameController = TextEditingController();
-  final _lastNameController = TextEditingController();
-  final _cityController = TextEditingController();
-  final _telephoneController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
+  // Método para manejar el registro
   void _signup() async {
-    final newUser = User(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      name: _nameController.text,
-      lastName: _lastNameController.text,
-      city: _cityController.text,
-      telephone: _telephoneController.text,
-      email: _emailController.text,
-      password: _passwordController.text,
-      imageUrl: '', // Puedes agregar una URL de imagen predeterminada o dejarla vacía
-      plots: [], // Valor predeterminado: lista vacía de parcelas
-      waterSupplier: WaterSupplier(
-        name: 'Default Supplier',
-        logo: 'https://example.com/default-logo.png', // URL de logo predeterminada
-      ),
-    );
-
-    final success = await widget.authService.signup(newUser);
-    if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Cuenta creada exitosamente')),
+    try {
+      final newUser = User(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
       );
-      Navigator.pop(context); // Vuelve a la pantalla de login
-    } else {
+
+      final success = await widget.authService.signup(newUser);
+
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Cuenta creada exitosamente')),
+        );
+        Navigator.pop(context); // Vuelve a la pantalla de login
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('El usuario ya existe o ocurrió un error')),
+        );
+      }
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('El usuario ya existe')),
+        SnackBar(content: Text('Error: $e')),
       );
     }
   }
@@ -68,22 +59,6 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
               ),
               const Divider(color: Colors.black, thickness: 1, indent: 40, endIndent: 40, height: 30),
               const SizedBox(height: 24),
-              Row(
-                children: [
-                  Expanded(child: _buildTextField(_nameController, 'Name')),
-                  const SizedBox(width: 10),
-                  Expanded(child: _buildTextField(_lastNameController, 'Last Name')),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(child: _buildTextField(_cityController, 'City')),
-                  const SizedBox(width: 10),
-                  Expanded(child: _buildTextField(_telephoneController, 'Telephone')),
-                ],
-              ),
-              const SizedBox(height: 16),
               _buildTextField(_emailController, 'Email'),
               const SizedBox(height: 16),
               _buildTextField(_passwordController, 'Password', obscureText: true),

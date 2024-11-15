@@ -32,12 +32,7 @@ class UserDataSource {
     body: json.encode({
       'username': newUser.email, // Usa el email como username si es requerido
       'email': newUser.email,
-      'password': newUser.password,
-      'name': newUser.name,
-      'lastName': newUser.lastName,
-      'city': newUser.city,
-      'telephone': newUser.telephone,
-      'imageUrl': newUser.imageUrl,
+      'password': newUser.password
       // Agrega otros campos necesarios aquí
     }),
   );

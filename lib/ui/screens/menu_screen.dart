@@ -99,12 +99,7 @@ class MenuScreenState extends State<MenuScreen> {
                   text: "Cuenta",
                   color: Colors.lightBlue,
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => AccountScreen(user: widget.currentUser),
-                      ),
-                    );
+                    
                   },
                 ),
                 const SizedBox(height: 70.0),

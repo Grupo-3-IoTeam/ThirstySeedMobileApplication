@@ -30,7 +30,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       );
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Bienvenido, ${user.name}!')),
+        SnackBar(content: Text('Bienvenido, ${user}!')),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
