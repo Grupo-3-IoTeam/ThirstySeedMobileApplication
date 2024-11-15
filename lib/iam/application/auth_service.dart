@@ -6,8 +6,6 @@ class AuthService {
 
   AuthService({required this.dataSource});
 
-  
-
   Future<User?> login(String email, String password) async {
     return await dataSource.getUserByEmailAndPassword(email, password);
   }
@@ -15,6 +13,4 @@ class AuthService {
   Future<bool> signup(User newUser) async {
     return await dataSource.addUser(newUser);
   }
-
-  
 }

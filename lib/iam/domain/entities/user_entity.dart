@@ -27,23 +27,21 @@ class User {
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
-    return User(
-      id: json['id'] ?? '',
-      name: json['name'] ?? '',
-      lastName: json['lastName'] ?? '',
-      city: json['city'] ?? '',
-      telephone: json['telephone'] ?? '',
-      email: json['email'] ?? '',
-      password: json['password'] ?? '',
-      imageUrl: json['imageUrl'] ?? '',
-      plots: (json['plots'] as List? ?? [])
-          .map((plot) => Plot.fromJson(plot))
-          .toList(),
-      waterSupplier: json['waterSupplier'] != null
-          ? WaterSupplier.fromJson(json['waterSupplier'])
-          : WaterSupplier(name: 'Unknown', logo: ''),
-    );
-  }
+  return User(
+    id: json['id'].toString(),  // Convierte a String
+    name: json['name'] ?? '',
+    lastName: json['lastName'] ?? '',
+    city: json['city'] ?? '',
+    telephone: json['telephone']?.toString() ?? '', // Convierte a String si es int
+    email: json['email'] ?? '',
+    password: json['password'] ?? '',
+    imageUrl: json['imageUrl'] ?? '',
+    plots: (json['plots'] as List? ?? []).map((plot) => Plot.fromJson(plot)).toList(),
+    waterSupplier: json['waterSupplier'] != null
+        ? WaterSupplier.fromJson(json['waterSupplier'])
+        : WaterSupplier(name: 'Unknown', logo: ''),
+  );
+}
 
   Map<String, dynamic> toJson() {
     return {
