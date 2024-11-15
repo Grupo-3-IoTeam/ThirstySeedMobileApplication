@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:thirstyseed/iam/application/auth_service.dart';
 import 'package:thirstyseed/iam/presentation/login_screen.dart';
-import 'package:thirstyseed/profile/presentation/account_screen.dart';
-import 'package:thirstyseed/iam/domain/entities/user_entity.dart';
+import 'package:thirstyseed/iam/domain/entities/auth_entity.dart';
 
 class MenuScreen extends StatefulWidget {
   final AuthService authService;
-  final User currentUser;
+  final UserAuth currentUser;
 
   const MenuScreen({Key? key, required this.authService, required this.currentUser}) : super(key: key);
 

@@ -1,18 +1,15 @@
-import 'package:thirstyseed/profile/domain/entities/plot_entity.dart';
-import 'package:thirstyseed/profile/domain/entities/water_supplier_entity.dart';
-
-class User {
+class UserAuth {
   final String email;
   final String password;
 
-  User({
+  UserAuth({
     required this.email,
     required this.password,
   });
 
   /// Crear un objeto `UserAuth` desde un JSON
-  factory User.fromJson(Map<String, dynamic> json) {
-    return User(
+  factory UserAuth.fromJson(Map<String, dynamic> json) {
+    return UserAuth(
       email: json['email'] ?? '',
       password: json['password'] ?? '',
     );

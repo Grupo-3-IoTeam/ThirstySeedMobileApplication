@@ -1,4 +1,4 @@
-import '../domain/entities/user_entity.dart';
+import '../domain/entities/auth_entity.dart';
 import '../infrastructure/data_sources/user_data_source.dart';
 
 class AuthService {
@@ -6,11 +6,11 @@ class AuthService {
 
   AuthService({required this.dataSource});
 
-  Future<User?> login(String email, String password) async {
+  Future<UserAuth?> login(String email, String password) async {
     return await dataSource.getUserByEmailAndPassword(email, password);
   }
 
-  Future<bool> signup(User newUser) async {
+  Future<bool> signup(UserAuth newUser) async {
     return await dataSource.addUser(newUser);
   }
 }

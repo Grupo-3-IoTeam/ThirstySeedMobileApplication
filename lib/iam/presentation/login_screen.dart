@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:thirstyseed/iam/presentation/create_account_screen.dart';
 import '../application/auth_service.dart';
 import '../../ui/screens/menu_screen.dart';
-import '../domain/entities/user_entity.dart';
+import '../domain/entities/auth_entity.dart';
 
 class LoginScreen extends StatefulWidget {
   final AuthService authService;

@@ -1,12 +1,12 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../../domain/entities/user_entity.dart';
+import '../../domain/entities/auth_entity.dart';
 
 class UserDataSource {
   final String baseUrl = 'https://thirstyseedapi-production.up.railway.app/api/v1';
 
   // Método para iniciar sesión con la API real
-  Future<User?> getUserByEmailAndPassword(String email, String password) async {
+  Future<UserAuth?> getUserByEmailAndPassword(String email, String password) async {
     final response = await http.post(
       Uri.parse('$baseUrl/authentication/sign-in'),
       headers: {'Content-Type': 'application/json'},
@@ -18,14 +18,14 @@ class UserDataSource {
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
-      return User.fromJson(data);
+      return UserAuth.fromJson(data);
     } else {
       return null;
     }
   }
 
   // Método para registrarse con la API real
-  Future<bool> addUser(User newUser) async {
+  Future<bool> addUser(UserAuth newUser) async {
   final response = await http.post(
     Uri.parse('$baseUrl/authentication/sign-up'),
     headers: {'Content-Type': 'application/json'},
