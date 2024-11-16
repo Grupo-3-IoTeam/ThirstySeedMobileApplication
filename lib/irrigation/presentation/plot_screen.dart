@@ -16,7 +16,7 @@ class _PlotScreenState extends State<PlotScreen> {
 
   // Cargar datos de parcelas desde el backend
   Future<void> loadPlotsData() async {
-    final url = Uri.parse('http://10.0.2.2:8080/plots');
+    final url = Uri.parse('https://thirstyseedapi-production.up.railway.app/api/v1/plot');  // Cambié la URL aquí
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -102,8 +102,70 @@ class _PlotScreenState extends State<PlotScreen> {
                     .where((plot) =>
                 plot['name'].toLowerCase().contains(_searchText) ||
                     plot['location'].toLowerCase().contains(_searchText))
-                    .map((plot) => PlotCard(plot: plot))
-                    .toList(),
+                    .map((plot) {
+                  return Card(
+                    margin: const EdgeInsets.symmetric(vertical: 8.0),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Row(
+                        children: [
+                          // Imagen
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.network(
+                              plot['imageUrl'] != null && plot['imageUrl'].isNotEmpty
+                                  ? plot['imageUrl']
+                                  : 'https://via.placeholder.com/150',
+                              width: 80,
+                              height: 80,
+                              fit: BoxFit.cover,
+                              loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+                                if (loadingProgress == null) {
+                                  return child;  // Retorna la imagen cuando esté completamente cargada
+                                } else {
+                                  // Muestra un indicador de progreso mientras la imagen se carga
+                                  return Center(
+                                    child: CircularProgressIndicator(
+                                      value: loadingProgress.expectedTotalBytes != null
+                                          ? loadingProgress.cumulativeBytesLoaded / (loadingProgress.expectedTotalBytes ?? 1)
+                                          : null,
+                                    ),
+                                  );
+                                }
+                              },
+                              errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+                                // Si ocurre un error al cargar la imagen, muestra una imagen de reemplazo
+                                return Image.network('https://via.placeholder.com/150');
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 16.0),
+
+                          // Expansión de los textos
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Land Name: ${plot['name']}',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.green,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text('Location: ${plot['location']}'),
+                                Text('Extension of Land: ${plot['extension']} m2'),
+                                Text('Plot Status: ${plot['status']}'),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }).toList(),
               ),
             ),
           ],
@@ -111,6 +173,7 @@ class _PlotScreenState extends State<PlotScreen> {
       ),
     );
   }
+
 }
 
 class PlotCard extends StatelessWidget {
@@ -130,10 +193,30 @@ class PlotCard extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: Image.network(
-                plot['imageUrl'] ?? 'https://via.placeholder.com/150',
+                plot['imageUrl'] != null && plot['imageUrl'].isNotEmpty
+                    ? plot['imageUrl']
+                    : 'https://via.placeholder.com/150',  // Usa una imagen por defecto si la URL es inválida o vacía
                 width: 80,
                 height: 80,
                 fit: BoxFit.cover,
+                loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+                  if (loadingProgress == null) {
+                    return child;  // Retorna la imagen cuando esté completamente cargada
+                  } else {
+                    // Muestra un indicador de progreso mientras la imagen se carga
+                    return Center(
+                      child: CircularProgressIndicator(
+                        value: loadingProgress.expectedTotalBytes != null
+                            ? loadingProgress.cumulativeBytesLoaded / (loadingProgress.expectedTotalBytes ?? 1)
+                            : null,
+                      ),
+                    );
+                  }
+                },
+                errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+                  // Si ocurre un error al cargar la imagen, muestra una imagen de reemplazo
+                  return Image.network('https://i.pinimg.com/736x/27/7f/5d/277f5df2d275cf76a7051a2e93fddd7f.jpg');
+                },
               ),
             ),
             const SizedBox(width: 16.0),

@@ -6,7 +6,7 @@ import '../../irrigation/domain/entities/plot_entity.dart';
 typedef FetchPlots = Future<List<Plot>> Function();
 
 Future<List<Plot>> fetchPlotsFromBackend() async {
-  final url = Uri.parse('http://10.0.2.2:8080/plots');
+  final url = Uri.parse('https://thirstyseedapi-production.up.railway.app/api/v1/plot');  // Cambié la URL aquí
   final response = await http.get(url);
 
   if (response.statusCode == 200) {

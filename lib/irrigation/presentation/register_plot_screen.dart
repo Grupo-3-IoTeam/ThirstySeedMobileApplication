@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import '../../irrigation/presentation/register_node_screen.dart';
 
 class RegisterPlotScreen extends StatefulWidget {
   const RegisterPlotScreen({super.key});
@@ -19,7 +18,7 @@ class _RegisterPlotScreenState extends State<RegisterPlotScreen> {
   String? _imageUrl;
 
   Future<void> _registerPlot() async {
-    final url = Uri.parse('http://10.0.2.2:8080/plots/createPlot');
+    final url = Uri.parse('https://thirstyseedapi-production.up.railway.app/api/v1/plot');  // Cambié la URL aquí
 
     try {
       final response = await http.post(
@@ -29,7 +28,7 @@ class _RegisterPlotScreenState extends State<RegisterPlotScreen> {
           'name': _nameController.text,
           'location': _locationController.text,
           'extension': _extensionController.text,
-          'imageUrl': _imageUrlController.text, // Añadir la URL de la imagen al cuerpo de la solicitud
+          'imageUrl': _imageUrlController.text,  // Añadido para la URL de la imagen
         }),
       );
 
