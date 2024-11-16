@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:thirstyseed/iam/application/auth_service.dart';
 import 'package:thirstyseed/iam/presentation/login_screen.dart';
 import 'package:thirstyseed/iam/domain/entities/auth_entity.dart';
+import 'package:thirstyseed/irrigation/presentation/plot_screen.dart';
 import 'package:thirstyseed/profile/domain/entities/profile_entity.dart';
 import 'package:thirstyseed/profile/presentation/view_account_profile.dart';
 
@@ -61,7 +62,11 @@ class MenuScreenState extends State<MenuScreen> {
                   text: "Administrar parcelas",
                   color: Colors.green,
                   onTap: () {
-                    // Lógica para "Administrar parcelas"
+                     // Navegar a AccountScreen
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const PlotScreen()),
+                    );
                   },
                 ),
                 _buildMenuOption(
