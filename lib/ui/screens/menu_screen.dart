@@ -118,7 +118,7 @@ class MenuScreenState extends State<MenuScreen> {
                   text: "Riegos programados",
                   color: Colors.teal,
                   onTap: () {
-                    // Lógica para "Riegos programados"
+                    Navigator.pushNamed(context, '/scheduleList');
                   },
                 ),
                 _buildMenuOption(
@@ -126,7 +126,7 @@ class MenuScreenState extends State<MenuScreen> {
                   text: "Reportes de riego",
                   color: Colors.orange,
                   onTap: () {
-                    // Lógica para "Reportes de riego"
+                    
                   },
                 ),
                 _buildMenuOption(

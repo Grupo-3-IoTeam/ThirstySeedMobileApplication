@@ -1,0 +1,88 @@
+import 'package:path/path.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:thirstyseed/irrigation/infrastructure/models/schedule_model.dart';
+
+class ScheduleLocalDataProvider {
+  Database? _database;
+
+  // Inicializa la base de datos
+  Future<Database> get database async {
+    if (_database != null) return _database!;
+    _database = await _initDB();
+    return _database!;
+  }
+
+  Future<Database> _initDB() async {
+    final path = join(await getDatabasesPath(), 'schedules.db');
+    return await openDatabase(
+      path,
+      version: 1,
+      onCreate: (db, version) async {
+        await db.execute('''
+          CREATE TABLE schedules (
+            id TEXT PRIMARY KEY,
+            plotId TEXT,
+            waterAmount REAL,
+            pressure REAL,
+            sprinklerRadius REAL,
+            expectedMoisture REAL,
+            estimatedTimeHours INTEGER,
+            setTime TEXT,
+            angle INTEGER,
+            isAutomatic INTEGER
+          )
+        ''');
+      },
+    );
+  }
+
+  // Obtener todos los schedules de la base de datos local
+  Future<List<ScheduleModel>> fetchSchedules() async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query('schedules');
+
+    return List.generate(maps.length, (i) {
+      return ScheduleModel.fromJson(maps[i]);
+    });
+  }
+
+  // Obtener un schedule por ID
+  Future<ScheduleModel?> getSchedule(String id) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps =
+        await db.query('schedules', where: "id = ?", whereArgs: [id]);
+
+    if (maps.isNotEmpty) {
+      return ScheduleModel.fromJson(maps.first);
+    }
+    return null;
+  }
+
+  // Guardar un schedule en la base de datos local
+  Future<void> cacheSchedule(ScheduleModel schedule) async {
+    final db = await database;
+    await db.insert(
+      'schedules',
+      schedule.toJson(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  // Guardar múltiples schedules en la base de datos local
+  Future<void> cacheSchedules(List<ScheduleModel> schedules) async {
+    final db = await database;
+    for (var schedule in schedules) {
+      await db.insert(
+        'schedules',
+        schedule.toJson(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    }
+  }
+
+  // Eliminar un schedule por ID
+  Future<void> deleteSchedule(String id) async {
+    final db = await database;
+    await db.delete('schedules', where: "id = ?", whereArgs: [id]);
+  }
+}

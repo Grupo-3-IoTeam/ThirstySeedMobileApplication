@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:thirstyseed/irrigation/presentation/schedule-list/schedule_list_screen.dart';
 import 'ui/screens/menu_screen.dart';
 import 'iam/presentation/login_screen.dart';
 import 'iam/application/auth_service.dart';
@@ -24,6 +25,9 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: LoginScreen(authService: authService),
+       routes: {
+        '/scheduleList': (context) => const ScheduleListScreen(),
+      },
     );
   }
 }
