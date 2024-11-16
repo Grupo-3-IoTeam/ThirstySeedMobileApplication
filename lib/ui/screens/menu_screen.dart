@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:thirstyseed/iam/application/auth_service.dart';
 import 'package:thirstyseed/iam/presentation/login_screen.dart';
 import 'package:thirstyseed/iam/domain/entities/auth_entity.dart';
+import 'package:thirstyseed/irrigation/domain/entities/node_entity.dart';
+import 'package:thirstyseed/irrigation/domain/entities/plot_entity.dart';
 import 'package:thirstyseed/irrigation/presentation/plot_screen.dart';
+import 'package:thirstyseed/irrigation/presentation/plot_status_screen.dart';
 import 'package:thirstyseed/profile/domain/entities/profile_entity.dart';
 import 'package:thirstyseed/profile/presentation/view_account_profile.dart';
 
@@ -74,7 +77,40 @@ class MenuScreenState extends State<MenuScreen> {
                   text: "Ver estado de parcelas",
                   color: Colors.blue,
                   onTap: () {
-                    // Lógica para "Ver estado de parcelas"
+                    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PlotStatusScreen(
+          fetchPlots: () async => [
+            Plot(
+              id: 1,
+              name: 'Parcela de Prueba',
+              extension: 1200,
+              installedNodes: 5,
+              lastIrrigationDate: '2024-11-15',
+              imageUrl: 'https://via.placeholder.com/150',
+              location: 'Ubicación no registrada',
+              status: 'OK',
+              size: 5,
+              nodes: [
+                Node(
+                  location: 'Sector 1',
+                  moisture: 50,
+                  indicator: 'Normal',
+                  status: 'OK',
+                ),
+                Node(
+                  location: 'Sector 2',
+                  moisture: 45,
+                  indicator: 'Normal',
+                  status: 'Error',
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
                   },
                 ),
                 _buildMenuOption(
