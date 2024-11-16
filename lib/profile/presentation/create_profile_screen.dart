@@ -4,9 +4,14 @@ import '../domain/entities/profile_entity.dart';
 
 class CreateProfileScreen extends StatefulWidget {
   final ProfileService profileService;
+  final int userId;
 
-  const CreateProfileScreen({Key? key, required this.profileService}) : super(key: key);
-
+ const CreateProfileScreen({
+    Key? key,
+    required this.profileService,
+    required this.userId, // Agregado
+  }) : super(key: key);
+  
   @override
   _CreateProfileScreenState createState() => _CreateProfileScreenState();
 }
@@ -20,37 +25,39 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
   final _imageUrlController = TextEditingController();
 
   // Método para manejar la creación del perfil
-  Future<void> _createProfile() async {
-    try {
-      final newProfile = ProfileEntity(
-        id: 0,
-        userId: 0, // Reemplazar con el ID de usuario si está disponible
-        firstName: _nameController.text.trim(),
-        lastName: _lastNameController.text.trim(),
-        email: _emailController.text.trim(),
-        phoneNumber: _telephoneController.text.trim(),
-        profileImage: _imageUrlController.text.trim(),
-        location: _cityController.text.trim(),
-      );
+ Future<void> _createProfile() async {
+  try {
+    final userId = widget.profileService.getNextUserId(); // Obtener el siguiente ID
 
-      final success = await widget.profileService.createProfile(newProfile);
+    final newProfile = ProfileEntity(
+      id: 0,
+      userId: userId, // Asignar el userId obtenido
+      firstName: _nameController.text.trim(),
+      lastName: _lastNameController.text.trim(),
+      email: _emailController.text.trim(),
+      phoneNumber: _telephoneController.text.trim(),
+      profileImage: _imageUrlController.text.trim(),
+      location: _cityController.text.trim(),
+    );
 
-      if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Perfil creado exitosamente')),
-        );
-        Navigator.pop(context); // Vuelve a la pantalla anterior
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Ocurrió un error al crear el perfil')),
-        );
-      }
-    } catch (e) {
+    final success = await widget.profileService.createProfile(newProfile);
+
+    if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
+        const SnackBar(content: Text('Perfil creado exitosamente')),
+      );
+      Navigator.pop(context); // Volver a la pantalla anterior
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Ocurrió un error al crear el perfil')),
       );
     }
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error: $e')),
+    );
   }
+}
 
   @override
   Widget build(BuildContext context) {

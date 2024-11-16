@@ -10,7 +10,11 @@ class AuthService {
     return await dataSource.getUserByEmailAndPassword(email, password);
   }
 
-  Future<bool> signup(UserAuth newUser) async {
+  Future<UserAuth?> signup(UserAuth newUser) async {
     return await dataSource.addUser(newUser);
+  }
+
+  Future<int?> getLastUserId() async {
+    return await dataSource.getLastUserId();
   }
 }

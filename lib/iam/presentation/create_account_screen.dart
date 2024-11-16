@@ -22,38 +22,40 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
   void _signup() async {
     try {
       final newUser = UserAuth(
+        id:0,
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
 
-      final success = await widget.authService.signup(newUser);
+    final createdUser = await widget.authService.signup(newUser);
 
-      if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Cuenta creada exitosamente')),
-        );
-        // Navega a la pantalla de creación de perfil
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => CreateProfileScreen(
-              profileService: ProfileService(
-                dataSource: ProfileDataSource(),
-              ),
-            ),
-          ),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('El usuario ya existe o ocurrió un error')),
-        );
-      }
-    } catch (e) {
+       if (createdUser != null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
+        const SnackBar(content: Text('Cuenta creada exitosamente')),
+      );
+        // Navega a la pantalla de creación de perfil
+         Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => CreateProfileScreen(
+            profileService: ProfileService(
+              dataSource: ProfileDataSource(),
+            ),
+            userId: createdUser.id, // Pasa el ID del usuario creado
+          ),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('El usuario ya existe o ocurrió un error')),
       );
     }
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error: $e')),
+    );
   }
+}
 
   @override
   Widget build(BuildContext context) {

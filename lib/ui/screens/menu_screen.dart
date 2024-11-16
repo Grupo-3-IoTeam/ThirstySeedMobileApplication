@@ -7,6 +7,7 @@ import 'package:thirstyseed/irrigation/domain/entities/plot_entity.dart';
 import 'package:thirstyseed/irrigation/presentation/plot_screen.dart';
 import 'package:thirstyseed/irrigation/presentation/plot_status_screen.dart';
 import 'package:thirstyseed/profile/domain/entities/profile_entity.dart';
+import 'package:thirstyseed/profile/infrastructure/data_sources/profile_data_source.dart';
 import 'package:thirstyseed/profile/presentation/view_account_profile.dart';
 
 
@@ -22,6 +23,21 @@ class MenuScreen extends StatefulWidget {
 
 class MenuScreenState extends State<MenuScreen> {
   int _selectedIndex = 0;
+
+Future<ProfileEntity?> _fetchUserProfile(int userId) async {
+    final profileDataSource = ProfileDataSource();
+    try {
+      return await profileDataSource.getProfileByUserId(userId);
+    } catch (e) {
+      // Manejo de errores
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al obtener el perfil: $e')),
+      );
+      return null;
+    }
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -137,29 +153,22 @@ class MenuScreenState extends State<MenuScreen> {
                     // Lógica para "Notificaciones"
                   },
                 ),
-                _buildMenuOption(
-  icon: Icons.person,
-  text: "Cuenta",
-  color: Colors.lightBlue,
-  onTap: () {
-    final profile = ProfileEntity(
-      id: 1, // Usa un ID ficticio o real si lo tienes
-      userId: 1, // Asigna un userId si es necesario
-      firstName: widget.currentUser.email.split('@')[0], // Ejemplo: usa parte del email como nombre
-      lastName: "", // Si no tienes, deja vacío
-      email: widget.currentUser.email,
-      phoneNumber: "", // Si no tienes datos, asigna un valor vacío
-      profileImage: 'https://via.placeholder.com/150', // Imagen por defecto
-      location: "Ubicación no registrada",
-    );
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => AccountScreen(user: profile),
-      ),
-    );
-  },
+               _buildMenuOption(
+  icon: Icons.person, // Un icono adecuado para ver el perfil
+  text: "Ver Perfil",
+  color: Colors.green,
+  onTap: () async {
+                    final userId = widget.currentUser.id; // Obtén el ID del usuario actual
+                    final profile = await _fetchUserProfile(userId);
+                    if (profile != null) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AccountScreen(user: profile),
+                        ),
+                      );
+                    }
+  }
 ),
                 const SizedBox(height: 70.0),
                 _buildMenuOption(
