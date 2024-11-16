@@ -1,14 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:thirstyseed/iam/application/auth_service.dart';
 import 'package:thirstyseed/iam/presentation/login_screen.dart';
-import 'package:thirstyseed/iam/domain/entities/auth_entity.dart';
-import 'package:thirstyseed/irrigation/domain/entities/node_entity.dart';
-import 'package:thirstyseed/irrigation/domain/entities/plot_entity.dart';
 import 'package:thirstyseed/irrigation/presentation/plot_screen.dart';
 import 'package:thirstyseed/irrigation/presentation/plot_status_screen.dart';
-import 'package:thirstyseed/profile/domain/entities/profile_entity.dart';
 import 'package:thirstyseed/profile/presentation/view_account_profile.dart';
-
 
 class MenuScreen extends StatefulWidget {
   final AuthService authService;
@@ -31,156 +26,117 @@ class MenuScreenState extends State<MenuScreen> {
         return false;
       },
       child: Scaffold(
-      body: Column(
-        children: [
-          Container(
-            width: double.infinity,
-            color: Colors.green[100],
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.eco,
-                  color: Colors.green,
-                  size: 40,
-                ),
-                const SizedBox(width: 10),
-                const Text(
-                  'Thirsty Seed',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                    color: Colors.black,
+        body: Column(
+          children: [
+            Container(
+              width: double.infinity,
+              color: Colors.green[100],
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.eco,
+                    color: Colors.green,
+                    size: 40,
                   ),
-                ),
-              ],
+                  const SizedBox(width: 10),
+                  const Text(
+                    'Thirsty Seed',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                      color: Colors.black,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(vertical: 16.0),
-              children: [
-                _buildMenuOption(
-                  icon: Icons.settings,
-                  text: "Administrar parcelas",
-                  color: Colors.green,
-                  onTap: () {
-                     // Navegar a AccountScreen
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const PlotScreen()),
-                    );
-                  },
-                ),
-                _buildMenuOption(
-                  icon: Icons.remove_red_eye,
-                  text: "Ver estado de parcelas",
-                  color: Colors.blue,
-                  onTap: () {
-                    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => PlotStatusScreen(
-          fetchPlots: () async => [
-            Plot(
-              id: 1,
-              name: 'Parcela de Prueba',
-              extension: 1200,
-              installedNodes: 5,
-              lastIrrigationDate: '2024-11-15',
-              imageUrl: 'https://via.placeholder.com/150',
-              location: 'Ubicación no registrada',
-              status: 'OK',
-              size: 5,
-              nodes: [
-                Node(
-                  location: 'Sector 1',
-                  moisture: 50,
-                  indicator: 'Normal',
-                  status: 'OK',
-                ),
-                Node(
-                  location: 'Sector 2',
-                  moisture: 45,
-                  indicator: 'Normal',
-                  status: 'Error',
-                ),
-              ],
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                children: [
+                  _buildMenuOption(
+                    icon: Icons.settings,
+                    text: "Administrar parcelas",
+                    color: Colors.green,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const PlotScreen()),
+                      );
+                    },
+                  ),
+                  _buildMenuOption(
+                    icon: Icons.remove_red_eye,
+                    text: "Ver estado de parcelas",
+                    color: Colors.blue,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const PlotStatusScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  _buildMenuOption(
+                    icon: Icons.schedule,
+                    text: "Riegos programados",
+                    color: Colors.teal,
+                    onTap: () {
+                      Navigator.pushNamed(context, '/scheduleList');
+                    },
+                  ),
+                  _buildMenuOption(
+                    icon: Icons.insert_chart,
+                    text: "Reportes de riego",
+                    color: Colors.orange,
+                    onTap: () {
+                      // Implementa lógica para "Reportes de riego"
+                    },
+                  ),
+                  _buildMenuOption(
+                    icon: Icons.notifications,
+                    text: "Notificaciones",
+                    color: Colors.amber,
+                    onTap: () {
+                      // Lógica para "Notificaciones"
+                    },
+                  ),
+                  _buildMenuOption(
+                    icon: Icons.person,
+                    text: "Cuenta",
+                    color: Colors.lightBlue,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const AccountScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 70.0),
+                  _buildMenuOption(
+                    icon: Icons.exit_to_app,
+                    text: "Salir",
+                    color: Colors.blueAccent,
+                    onTap: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => LoginScreen(authService: widget.authService),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
           ],
         ),
       ),
     );
-                  },
-                ),
-                _buildMenuOption(
-                  icon: Icons.schedule,
-                  text: "Riegos programados",
-                  color: Colors.teal,
-                  onTap: () {
-                    Navigator.pushNamed(context, '/scheduleList');
-                  },
-                ),
-                _buildMenuOption(
-                  icon: Icons.insert_chart,
-                  text: "Reportes de riego",
-                  color: Colors.orange,
-                  onTap: () {
-                    
-                  },
-                ),
-                _buildMenuOption(
-                  icon: Icons.notifications,
-                  text: "Notificaciones",
-                  color: Colors.amber,
-                  onTap: () {
-                    // Lógica para "Notificaciones"
-                  },
-                ),
-                _buildMenuOption(
-  icon: Icons.person,
-  text: "Cuenta",
-  color: Colors.lightBlue,
-  onTap: () {
-    final profile = ProfileEntity(
-      id: 1, // Usa un ID ficticio o real si lo tienes
-      userId: 1, // Asigna un userId si es necesario
-      firstName: widget.currentUser.email.split('@')[0], // Ejemplo: usa parte del email como nombre
-      lastName: "", // Si no tienes, deja vacío
-      email: widget.currentUser.email,
-      phoneNumber: "", // Si no tienes datos, asigna un valor vacío
-      profileImage: 'https://via.placeholder.com/150', // Imagen por defecto
-      location: "Ubicación no registrada",
-    );
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => AccountScreen(user: profile),
-      ),
-    );
-  },
-),
-                const SizedBox(height: 70.0),
-                _buildMenuOption(
-                  icon: Icons.exit_to_app,
-                  text: "Salir",
-                  color: Colors.blueAccent,
-                  onTap: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => LoginScreen(authService: widget.authService),
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    ));
   }
 
   Widget _buildMenuOption({
