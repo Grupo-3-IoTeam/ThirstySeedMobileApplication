@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class RegisterNodeScreen extends StatefulWidget {
   const RegisterNodeScreen({super.key});
@@ -26,7 +28,6 @@ class _RegisterNodeScreenState extends State<RegisterNodeScreen> {
       });
     });
 
-    // Animación para desplazarse al nuevo nodo
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollController.animateTo(
         _scrollController.position.maxScrollExtent + 200,
@@ -42,10 +43,40 @@ class _RegisterNodeScreenState extends State<RegisterNodeScreen> {
     });
   }
 
+  Future<void> _sendNodesToBackend() async {
+    final url = Uri.parse('http://tu-api.com/nodos/registrar');
+
+    try {
+      for (var node in _nodes) {
+        final response = await http.post(
+          url,
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            'name': node['name']!.text,
+            'type': node['type']!.text,
+            'location': node['location']!.text,
+          }),
+        );
+
+        if (response.statusCode != 200) {
+          throw Exception('Error al registrar nodo');
+        }
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Nodos registrados con éxito')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: true, // Permite ajustar la pantalla cuando el teclado está activo
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         backgroundColor: Colors.green[100],
         title: const Text(
@@ -81,7 +112,7 @@ class _RegisterNodeScreenState extends State<RegisterNodeScreen> {
                       children: [
                         Container(
                           width: 280,
-                          height: 350, // Ajuste de altura para estirar la tarjeta
+                          height: 350,
                           padding: const EdgeInsets.all(16.0),
                           decoration: BoxDecoration(
                             color: Colors.green[50],
@@ -89,7 +120,7 @@ class _RegisterNodeScreenState extends State<RegisterNodeScreen> {
                           ),
                           child: Column(
                             children: [
-                              Icon(Icons.spa, size: 60, color: Colors.grey),
+                              const Icon(Icons.spa, size: 60, color: Colors.grey),
                               const SizedBox(height: 16.0),
                               _buildTextField(node['name']!, 'Land Name'),
                               const SizedBox(height: 8.0),
@@ -99,7 +130,6 @@ class _RegisterNodeScreenState extends State<RegisterNodeScreen> {
                             ],
                           ),
                         ),
-                        // Botón de borrar (solo si hay más de un nodo)
                         if (_nodes.length > 1)
                           Positioned(
                             top: 8,
@@ -115,26 +145,20 @@ class _RegisterNodeScreenState extends State<RegisterNodeScreen> {
                 }),
               ),
             ),
-            const SizedBox(height: 40.0), // Reducir la altura aquí para subir los botones
-
-            // Botón "+" centrado
+            const SizedBox(height: 40.0),
             Center(
               child: FloatingActionButton(
                 onPressed: _addNode,
                 backgroundColor: Colors.green,
-                child: const Icon(Icons.add, size: 30), // Tamaño del ícono aumentado
+                child: const Icon(Icons.add, size: 30),
               ),
             ),
-            const SizedBox(height: 20), // Espacio entre "+" y los botones de guardar/cancelar
-
-            // Botones "Guardar" y "Cancelar"
+            const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ElevatedButton(
-                  onPressed: () {
-                    // Acción para guardar los nodos
-                  },
+                  onPressed: _sendNodesToBackend,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
                     padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -144,7 +168,6 @@ class _RegisterNodeScreenState extends State<RegisterNodeScreen> {
                 const SizedBox(width: 20),
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.pop(context);
                     Navigator.pop(context);
                   },
                   style: ElevatedButton.styleFrom(

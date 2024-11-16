@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'register_plot_screen.dart';
-import 'package:flutter/services.dart' as rootBundle;
-
 
 class PlotScreen extends StatefulWidget {
   const PlotScreen({super.key});
@@ -15,13 +14,25 @@ class _PlotScreenState extends State<PlotScreen> {
   List<dynamic> _plots = [];
   String _searchText = '';
 
-  // Cargar datos de parcelas desde un archivo JSON
+  // Cargar datos de parcelas desde el backend
   Future<void> loadPlotsData() async {
-    final String jsonString = await rootBundle.rootBundle.loadString('server/db.json');
-    final Map<String, dynamic> jsonData = json.decode(jsonString);
-    setState(() {
-      _plots = jsonData['plots'];
-    });
+    final url = Uri.parse('http://10.0.2.2:8080/plots');
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonData = json.decode(response.body);
+        setState(() {
+          _plots = jsonData;
+        });
+      } else {
+        throw Exception('Error al cargar datos: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error al obtener parcelas: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al obtener datos del servidor: $e')),
+      );
+    }
   }
 
   @override
@@ -45,7 +56,6 @@ class _PlotScreenState extends State<PlotScreen> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // Barra de búsqueda
             TextField(
               onChanged: (text) {
                 setState(() {
@@ -63,18 +73,15 @@ class _PlotScreenState extends State<PlotScreen> {
                 ),
               ),
             ),
-            
             const SizedBox(height: 10.0),
-            
-            // Botón "Registrar Parcela" alineado a la derecha
             Align(
               alignment: Alignment.centerRight,
               child: ElevatedButton(
                 onPressed: () {
                   Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const RegisterPlotScreen()),
-                    );
+                    context,
+                    MaterialPageRoute(builder: (context) => const RegisterPlotScreen()),
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
@@ -88,16 +95,13 @@ class _PlotScreenState extends State<PlotScreen> {
                 ),
               ),
             ),
-
             const SizedBox(height: 16.0),
-            
-            // Lista de parcelas filtrada
             Expanded(
               child: ListView(
                 children: _plots
                     .where((plot) =>
-                        plot['name'].toLowerCase().contains(_searchText) ||
-                        plot['location'].toLowerCase().contains(_searchText))
+                plot['name'].toLowerCase().contains(_searchText) ||
+                    plot['location'].toLowerCase().contains(_searchText))
                     .map((plot) => PlotCard(plot: plot))
                     .toList(),
               ),
@@ -126,14 +130,13 @@ class PlotCard extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: Image.network(
-                plot['imageUrl'],
+                plot['imageUrl'] ?? 'https://via.placeholder.com/150',
                 width: 80,
                 height: 80,
                 fit: BoxFit.cover,
               ),
             ),
             const SizedBox(width: 16.0),
-            // Información de la parcela
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
