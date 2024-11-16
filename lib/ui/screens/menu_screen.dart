@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:thirstyseed/iam/application/auth_service.dart';
 import 'package:thirstyseed/iam/presentation/login_screen.dart';
 import 'package:thirstyseed/iam/domain/entities/auth_entity.dart';
+import 'package:thirstyseed/profile/domain/entities/profile_entity.dart';
+import 'package:thirstyseed/profile/presentation/view_account_profile.dart';
+
 
 class MenuScreen extends StatefulWidget {
   final AuthService authService;
@@ -94,13 +97,29 @@ class MenuScreenState extends State<MenuScreen> {
                   },
                 ),
                 _buildMenuOption(
-                  icon: Icons.person,
-                  text: "Cuenta",
-                  color: Colors.lightBlue,
-                  onTap: () {
-                    
-                  },
-                ),
+  icon: Icons.person,
+  text: "Cuenta",
+  color: Colors.lightBlue,
+  onTap: () {
+    final profile = ProfileEntity(
+      id: 1, // Usa un ID ficticio o real si lo tienes
+      userId: 1, // Asigna un userId si es necesario
+      firstName: widget.currentUser.email.split('@')[0], // Ejemplo: usa parte del email como nombre
+      lastName: "", // Si no tienes, deja vacío
+      email: widget.currentUser.email,
+      phoneNumber: "", // Si no tienes datos, asigna un valor vacío
+      profileImage: 'https://via.placeholder.com/150', // Imagen por defecto
+      location: "Ubicación no registrada",
+    );
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AccountScreen(user: profile),
+      ),
+    );
+  },
+),
                 const SizedBox(height: 70.0),
                 _buildMenuOption(
                   icon: Icons.exit_to_app,
