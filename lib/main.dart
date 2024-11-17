@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:thirstyseed/irrigation/presentation/schedule-list/schedule_list_screen.dart';
 import 'package:thirstyseed/subscription/presentation/select_plan_screen.dart';
-import 'ui/screens/menu_screen.dart';
 import 'iam/presentation/login_screen.dart';
 import 'iam/application/auth_service.dart';
 import 'iam/infrastructure/data_sources/user_data_source.dart';
@@ -36,8 +34,6 @@ class MyApp extends StatelessWidget {
           }
         }
         switch (settings.name) {
-          case '/scheduleList':
-            return MaterialPageRoute(builder: (_) => const ScheduleListScreen());
           default:
             return MaterialPageRoute(builder: (_) => LoginScreen(authService: authService));
         }

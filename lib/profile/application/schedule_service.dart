@@ -1,14 +1,14 @@
 import 'package:thirstyseed/irrigation/domain/entities/schedule_entity.dart';
-import 'package:thirstyseed/irrigation/infrastructure/data_sources/schedule_data_source.dart';
+import 'package:thirstyseed/irrigation/infrastructure/repositories/schedule_repository.dart';
 
-class ScheduleRepository {
-  final ScheduleDataSource dataSource;
+class ScheduleService {
+  final ScheduleRepository repository;
 
-  ScheduleRepository({required this.dataSource});
+  ScheduleService({required this.repository});
 
   Future<bool> createSchedule(Schedule schedule) async {
     try {
-      return await dataSource.createSchedule(schedule);
+      return await repository.createSchedule(schedule);
     } catch (e) {
       rethrow;
     }
@@ -16,7 +16,7 @@ class ScheduleRepository {
 
   Future<Schedule> getScheduleById(int scheduleId) async {
     try {
-      return await dataSource.getScheduleById(scheduleId);
+      return await repository.getScheduleById(scheduleId);
     } catch (e) {
       rethrow;
     }
@@ -24,7 +24,7 @@ class ScheduleRepository {
 
   Future<List<Schedule>> getAllSchedules() async {
     try {
-      return await dataSource.getAllSchedules();
+      return await repository.getAllSchedules();
     } catch (e) {
       rethrow;
     }
@@ -32,7 +32,7 @@ class ScheduleRepository {
 
   Future<bool> updateSchedule(int scheduleId, Schedule schedule) async {
     try {
-      return await dataSource.updateSchedule(scheduleId, schedule);
+      return await repository.updateSchedule(scheduleId, schedule);
     } catch (e) {
       rethrow;
     }
@@ -40,7 +40,7 @@ class ScheduleRepository {
 
   Future<bool> deleteSchedule(int scheduleId) async {
     try {
-      return await dataSource.deleteSchedule(scheduleId);
+      return await repository.deleteSchedule(scheduleId);
     } catch (e) {
       rethrow;
     }

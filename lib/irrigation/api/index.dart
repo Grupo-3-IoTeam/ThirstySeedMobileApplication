@@ -1,1 +1,0 @@
-export '../../irrigation/api/schedule_api.dart';
