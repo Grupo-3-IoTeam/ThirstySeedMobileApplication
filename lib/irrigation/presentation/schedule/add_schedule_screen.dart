@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:thirstyseed/irrigation/domain/entities/schedule_entity.dart';
-import 'package:thirstyseed/profile/application/schedule_service.dart';
+import 'package:thirstyseed/irrigation/application/schedule_service.dart';
 
 class AddScheduleScreen extends StatefulWidget {
   final ScheduleService scheduleService;
