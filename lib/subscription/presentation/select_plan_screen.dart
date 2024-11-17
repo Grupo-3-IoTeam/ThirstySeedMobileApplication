@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:thirstyseed/subscription/infrastructure/services/subscription_data_source.dart';
+import '../infrastructure/services/subscription_service.dart';
 
 class SelectPlanScreen extends StatefulWidget {
   final int userId;
@@ -14,8 +14,17 @@ class SelectPlanScreen extends StatefulWidget {
 class _SelectPlanScreenState extends State<SelectPlanScreen> {
   String? selectedPlan;
   bool isLoading = false;
+  late SubscriptionService subscriptionService;
 
-  Future<void> _makePayment() async {
+  @override
+  void initState() {
+    super.initState();
+    final dataSource = SubscriptionDataSource(
+        'https://thirstyseedapi-production.up.railway.app/api/v1/subscriptions');
+    subscriptionService = SubscriptionService(dataSource);
+  }
+
+  void _openPaymentDialog() {
     if (selectedPlan == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Por favor, selecciona un plan.')),
@@ -23,38 +32,97 @@ class _SelectPlanScreenState extends State<SelectPlanScreen> {
       return;
     }
 
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            top: 16,
+            left: 16,
+            right: 16,
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Pago',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  decoration: const InputDecoration(
+                    labelText: 'Número de tarjeta',
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  decoration: const InputDecoration(
+                    labelText: 'Fecha de expiración',
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.datetime,
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  decoration: const InputDecoration(
+                    labelText: 'CVV',
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.number,
+                  obscureText: true,
+                ),
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  onPressed: () async {
+                    Navigator.pop(context); // Cierra el modal
+                    await _makePayment();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text(
+                    'Vamos',
+                    style: TextStyle(fontSize: 16, color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _makePayment() async {
     setState(() {
       isLoading = true;
     });
 
-    final nodeCount = (selectedPlan == 'PREMIUM') ? 5 : 12;
-    final validationCode = _generateValidationCode();
-
-    final subscriptionData = {
-      'userId': widget.userId,
-      'planType': selectedPlan,
-      'nodeCount': nodeCount,
-      'validationCode': validationCode,
-    };
-
     try {
-      final response = await http.post(
-        Uri.parse('https://thirstyseedapi-production.up.railway.app/api/v1/subscriptions'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(subscriptionData),
-      );
+      final success =
+          await subscriptionService.createSubscription(widget.userId, selectedPlan!);
 
       setState(() {
         isLoading = false;
       });
 
-      if (response.statusCode == 200) {
+      if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Pago realizado con éxito')),
         );
+        Navigator.pop(context);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al procesar el pago: ${response.body}')),
+          const SnackBar(content: Text('Error al procesar el pago')),
         );
       }
     } catch (e) {
@@ -67,18 +135,9 @@ class _SelectPlanScreenState extends State<SelectPlanScreen> {
     }
   }
 
-  String _generateValidationCode() {
-    const prefix = 'TSeed-';
-    final random = List.generate(8, (index) => String.fromCharCode(65 + (index % 26))).join();
-    return '$prefix$random';
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Seleccionar Plan'),
-      ),
       body: Center(
         child: SingleChildScrollView(
           child: Column(
@@ -117,13 +176,18 @@ class _SelectPlanScreenState extends State<SelectPlanScreen> {
               isLoading
                   ? const CircularProgressIndicator()
                   : ElevatedButton(
-                      onPressed: _makePayment,
+                      onPressed: _openPaymentDialog,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
                         padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
-                      child: const Text('Pagar', style: TextStyle(fontSize: 16, color: Colors.white)),
+                      child: const Text(
+                        'Pagar',
+                        style: TextStyle(fontSize: 16, color: Colors.white),
+                      ),
                     ),
             ],
           ),
@@ -154,18 +218,29 @@ class _SelectPlanScreenState extends State<SelectPlanScreen> {
           children: [
             Text(
               title,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: isSelected ? Colors.white : Colors.green),
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: isSelected ? Colors.white : Colors.green,
+              ),
             ),
             const SizedBox(height: 8),
             Text(
               description,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 12, color: isSelected ? Colors.white : Colors.black),
+              style: TextStyle(
+                fontSize: 12,
+                color: isSelected ? Colors.white : Colors.black,
+              ),
             ),
             const SizedBox(height: 12),
             Text(
               '\$$price',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: isSelected ? Colors.white : Colors.green),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: isSelected ? Colors.white : Colors.green,
+              ),
             ),
           ],
         ),
@@ -173,4 +248,3 @@ class _SelectPlanScreenState extends State<SelectPlanScreen> {
     );
   }
 }
-
