@@ -2,10 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:thirstyseed/iam/application/auth_service.dart';
 import 'package:thirstyseed/iam/presentation/login_screen.dart';
 import 'package:thirstyseed/iam/domain/entities/auth_entity.dart';
+import 'package:thirstyseed/irrigation/application/schedule_service.dart';
 import 'package:thirstyseed/irrigation/domain/entities/node_entity.dart';
 import 'package:thirstyseed/irrigation/domain/entities/plot_entity.dart';
+import 'package:thirstyseed/irrigation/infrastructure/data_sources/schedule_data_source.dart';
+import 'package:thirstyseed/irrigation/infrastructure/repositories/schedule_repository.dart';
 import 'package:thirstyseed/irrigation/presentation/plot_screen.dart';
 import 'package:thirstyseed/irrigation/presentation/plot_status_screen.dart';
+import 'package:thirstyseed/irrigation/presentation/schedule/schedule_list_screen.dart';
 import 'package:thirstyseed/profile/domain/entities/profile_entity.dart';
 import 'package:thirstyseed/profile/infrastructure/data_sources/profile_data_source.dart';
 import 'package:thirstyseed/profile/presentation/view_account_profile.dart';
@@ -124,7 +128,15 @@ class MenuScreenState extends State<MenuScreen> {
                     text: "Riegos programados",
                     color: Colors.teal,
                     onTap: () {
-                      Navigator.pushNamed(context, '/scheduleList');
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) {
+                          final scheduleDataSource = ScheduleDataSource();
+                          final scheduleRepository = ScheduleRepository(dataSource: scheduleDataSource);
+                          final scheduleService = ScheduleService(repository: scheduleRepository);
+                          return ScheduleListScreen(scheduleService: scheduleService);
+                        }),
+                      );
                     },
                   ),
                   _buildMenuOption(
