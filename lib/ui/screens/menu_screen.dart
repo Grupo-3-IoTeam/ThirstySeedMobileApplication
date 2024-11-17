@@ -78,51 +78,23 @@ class MenuScreenState extends State<MenuScreen> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const PlotScreen()),
+                        MaterialPageRoute(builder: (context) => PlotScreen(userId: widget.currentUser.id)),
                       );
                     },
                   ),
                   _buildMenuOption(
-                    icon: Icons.remove_red_eye,
-                    text: "Ver estado de parcelas",
-                    color: Colors.blue,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => PlotStatusScreen(
-                            fetchPlots: () async => [
-                              Plot(
-                                id: 1,
-                                name: 'Parcela de Prueba',
-                                extension: 1200,
-                                installedNodes: 5,
-                                lastIrrigationDate: '2024-11-15',
-                                imageUrl: 'https://via.placeholder.com/150',
-                                location: 'Ubicación no registrada',
-                                status: 'OK',
-                                size: 5,
-                                nodes: [
-                                  Node(
-                                    location: 'Sector 1',
-                                    moisture: 50,
-                                    indicator: 'Normal',
-                                    status: 'OK',
-                                  ),
-                                  Node(
-                                    location: 'Sector 2',
-                                    moisture: 45,
-                                    indicator: 'Normal',
-                                    status: 'Error',
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
+  icon: Icons.remove_red_eye,
+  text: "Ver estado de parcelas",
+  color: Colors.blue,
+  onTap: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PlotStatusScreen(userId: widget.currentUser.id),
+      ),
+    );
+  },
+),
                   _buildMenuOption(
                     icon: Icons.schedule,
                     text: "Riegos programados",
