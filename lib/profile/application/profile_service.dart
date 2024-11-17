@@ -3,7 +3,7 @@ import '../infrastructure/data_sources/profile_data_source.dart';
 
 class ProfileService {
   final ProfileDataSource dataSource;
-  static int _userIdCounter = 21; // Comenzar desde 21
+  static int _userIdCounter = 1; // Comenzar desde 1
 
   ProfileService({required this.dataSource});
 

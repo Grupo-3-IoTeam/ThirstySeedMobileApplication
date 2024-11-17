@@ -59,6 +59,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
 
   @override
   Widget build(BuildContext context) {
+    
     return Scaffold(
       body: Center(
         child: SingleChildScrollView(
@@ -81,7 +82,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
               ElevatedButton(
                 onPressed: _signup,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
+                  backgroundColor: const Color.fromARGB(255, 76, 175, 80),
                   padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 12.0),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),

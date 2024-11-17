@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:thirstyseed/subscription/presentation/select_plan_screen.dart';
 import '../application/profile_service.dart';
 import '../domain/entities/profile_entity.dart';
 
@@ -6,12 +7,12 @@ class CreateProfileScreen extends StatefulWidget {
   final ProfileService profileService;
   final int userId;
 
- const CreateProfileScreen({
+  const CreateProfileScreen({
     Key? key,
     required this.profileService,
-    required this.userId, // Agregado
+    required this.userId,
   }) : super(key: key);
-  
+
   @override
   _CreateProfileScreenState createState() => _CreateProfileScreenState();
 }
@@ -24,40 +25,41 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
   final _emailController = TextEditingController();
   final _imageUrlController = TextEditingController();
 
-  // Método para manejar la creación del perfil
- Future<void> _createProfile() async {
-  try {
-    final userId = widget.profileService.getNextUserId(); // Obtener el siguiente ID
+  bool _showChoosePlanButton = false; // Estado para controlar la visibilidad del botón
 
-    final newProfile = ProfileEntity(
-      id: 0,
-      userId: userId, // Asignar el userId obtenido
-      firstName: _nameController.text.trim(),
-      lastName: _lastNameController.text.trim(),
-      email: _emailController.text.trim(),
-      phoneNumber: _telephoneController.text.trim(),
-      profileImage: _imageUrlController.text.trim(),
-      location: _cityController.text.trim(),
-    );
-
-    final success = await widget.profileService.createProfile(newProfile);
-
-    if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Perfil creado exitosamente')),
+  Future<void> _createProfile() async {
+    try {
+      final newProfile = ProfileEntity(
+        id: 0,
+        userId: widget.userId,
+        firstName: _nameController.text.trim(),
+        lastName: _lastNameController.text.trim(),
+        email: _emailController.text.trim(),
+        phoneNumber: _telephoneController.text.trim(),
+        profileImage: _imageUrlController.text.trim(),
+        location: _cityController.text.trim(),
       );
-      Navigator.pop(context); // Volver a la pantalla anterior
-    } else {
+
+      final success = await widget.profileService.createProfile(newProfile);
+
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Perfil creado exitosamente')),
+        );
+        setState(() {
+          _showChoosePlanButton = true; // Mostrar el botón al tener éxito
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Ocurrió un error al crear el perfil')),
+        );
+      }
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Ocurrió un error al crear el perfil')),
+        SnackBar(content: Text('Error: $e')),
       );
     }
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Error: $e')),
-    );
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -75,17 +77,11 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black),
               ),
               const Divider(color: Colors.black, thickness: 1, indent: 40, endIndent: 40, height: 30),
-              const SizedBox(height: 24),
               _buildTextField(_nameController, 'First Name'),
-              const SizedBox(height: 16),
               _buildTextField(_lastNameController, 'Last Name'),
-              const SizedBox(height: 16),
               _buildTextField(_cityController, 'City'),
-              const SizedBox(height: 16),
               _buildTextField(_telephoneController, 'Telephone'),
-              const SizedBox(height: 16),
               _buildTextField(_emailController, 'Email'),
-              const SizedBox(height: 16),
               _buildTextField(_imageUrlController, 'Image URL'),
               const SizedBox(height: 24),
               ElevatedButton(
@@ -97,6 +93,23 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                 ),
                 child: const Text('Create Profile', style: TextStyle(fontSize: 16, color: Colors.white)),
               ),
+              if (_showChoosePlanButton) // Mostrar el botón solo si la variable es true
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SelectPlanScreen(userId: widget.userId),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 12.0),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  child: const Text('Choose Plan', style: TextStyle(fontSize: 16, color: Colors.white)),
+                ),
             ],
           ),
         ),
@@ -117,4 +130,3 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
     );
   }
 }
-
