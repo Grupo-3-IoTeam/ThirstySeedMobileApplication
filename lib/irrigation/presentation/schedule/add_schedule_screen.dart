@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:thirstyseed/irrigation/domain/entities/schedule_entity.dart';
 import 'package:thirstyseed/irrigation/application/schedule_service.dart';
+import 'package:thirstyseed/irrigation/infrastructure/data_sources/schedule_data_source.dart';
+import 'package:thirstyseed/irrigation/infrastructure/repositories/schedule_repository.dart';
+import 'package:thirstyseed/irrigation/presentation/schedule/schedule_list_screen.dart';
 
 class AddScheduleScreen extends StatefulWidget {
   final ScheduleService scheduleService;
@@ -37,6 +40,18 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
     _setTimeController.text = schedule.setTime;
     _angleController.text = schedule.angle.toString();
     _isAutomatic = schedule.isAutomatic;
+    if (_isAutomatic) {
+      _populateAutomaticFields();
+    }
+  }
+
+  void _populateAutomaticFields() {
+    _waterAmountController.text = '100';
+    _pressureController.text = '2';
+    _sprinklerRadiusController.text = '5';
+    _estimatedTimeHoursController.text = '2';
+    _setTimeController.text = '08:00';
+    _angleController.text = '90';
   }
 
   @override
@@ -45,6 +60,22 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
       appBar: AppBar(
         title: const Text('Add Schedule'),
         backgroundColor: Colors.green,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) {
+                  final scheduleDataSource = ScheduleDataSource();
+                  final scheduleRepository = ScheduleRepository(dataSource: scheduleDataSource);
+                  final scheduleService = ScheduleService(repository: scheduleRepository);
+                  return ScheduleListScreen(scheduleService: scheduleService);
+                },
+              ),
+            );
+          },
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -56,6 +87,11 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
               onChanged: (value) {
                 setState(() {
                   _isAutomatic = value;
+                  if (_isAutomatic) {
+                    _populateAutomaticFields();
+                  } else {
+                    _clearFields();
+                  }
                 });
               },
             ),
@@ -67,36 +103,70 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
             _buildTextField(_setTimeController, 'Set Time (e.g. 08:00)', enabled: !_isAutomatic),
             _buildTextField(_angleController, 'Angle (degrees)', enabled: !_isAutomatic),
             const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: _isAutomatic || _validateFields()
-                  ? () async {
-                      final newSchedule = Schedule(
-                        id: widget.schedule?.id ?? 0,
-                        plotId: 1, // Por ahora, siempre será 1
-                        waterAmount: int.tryParse(_waterAmountController.text) ?? 0,
-                        pressure: int.tryParse(_pressureController.text) ?? 0,
-                        sprinklerRadius: int.tryParse(_sprinklerRadiusController.text) ?? 0,
-                        expectedMoisture: 70,
-                        estimatedTimeHours: int.tryParse(_estimatedTimeHoursController.text) ?? 0,
-                        setTime: _setTimeController.text,
-                        angle: int.tryParse(_angleController.text) ?? 0,
-                        isAutomatic: _isAutomatic,
-                      );
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) {
+                          final scheduleDataSource = ScheduleDataSource();
+                          final scheduleRepository = ScheduleRepository(dataSource: scheduleDataSource);
+                          final scheduleService = ScheduleService(repository: scheduleRepository);
+                          return ScheduleListScreen(scheduleService: scheduleService);
+                        },
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 12.0),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  child: const Text('Cancel', style: TextStyle(fontSize: 16, color: Colors.white)),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    final newSchedule = Schedule(
+                      id: widget.schedule?.id ?? 0,
+                      plotId: 1, // Por ahora, siempre será 1
+                      waterAmount: int.tryParse(_waterAmountController.text) ?? 0,
+                      pressure: int.tryParse(_pressureController.text) ?? 0,
+                      sprinklerRadius: int.tryParse(_sprinklerRadiusController.text) ?? 0,
+                      expectedMoisture: 70,
+                      estimatedTimeHours: int.tryParse(_estimatedTimeHoursController.text) ?? 0,
+                      setTime: _setTimeController.text,
+                      angle: int.tryParse(_angleController.text) ?? 0,
+                      isAutomatic: _isAutomatic,
+                    );
 
-                      if (widget.schedule == null) {
-                        await widget.scheduleService.createSchedule(newSchedule);
-                      } else {
-                        await widget.scheduleService.updateSchedule(newSchedule.id, newSchedule);
-                      }
-                      Navigator.pushNamed(context, '/scheduleList');
+                    if (widget.schedule == null) {
+                      await widget.scheduleService.createSchedule(newSchedule);
+                    } else {
+                      await widget.scheduleService.updateSchedule(newSchedule.id, newSchedule);
                     }
-                  : null,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-                padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 12.0),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-              ),
-              child: const Text('Save Schedule', style: TextStyle(fontSize: 16, color: Colors.white)),
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) {
+                          final scheduleDataSource = ScheduleDataSource();
+                          final scheduleRepository = ScheduleRepository(dataSource: scheduleDataSource);
+                          final scheduleService = ScheduleService(repository: scheduleRepository);
+                          return ScheduleListScreen(scheduleService: scheduleService);
+                        },
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 12.0),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  child: const Text('Save Schedule', style: TextStyle(fontSize: 16, color: Colors.white)),
+                ),
+              ],
             ),
           ],
         ),
@@ -117,12 +187,12 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
     );
   }
 
-  bool _validateFields() {
-    return _waterAmountController.text.isNotEmpty &&
-        _pressureController.text.isNotEmpty &&
-        _sprinklerRadiusController.text.isNotEmpty &&
-        _estimatedTimeHoursController.text.isNotEmpty &&
-        _setTimeController.text.isNotEmpty &&
-        _angleController.text.isNotEmpty;
+  void _clearFields() {
+    _waterAmountController.clear();
+    _pressureController.clear();
+    _sprinklerRadiusController.clear();
+    _estimatedTimeHoursController.clear();
+    _setTimeController.clear();
+    _angleController.clear();
   }
 }
