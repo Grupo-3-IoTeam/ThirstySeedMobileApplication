@@ -67,12 +67,13 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.account_circle, size: 120, color: Colors.black),
+              const Icon(Icons.lock, size: 120, color: Color.fromARGB(255, 0, 0, 0)),
               const SizedBox(height: 24),
               const Text(
-                'Create New Account',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black),
+                'Create Your Account Credentials',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 76, 175, 80)),
               ),
+          
               const Divider(color: Colors.black, thickness: 1, indent: 40, endIndent: 40, height: 30),
               const SizedBox(height: 24),
               _buildTextField(_emailController, 'Email'),
