@@ -23,7 +23,7 @@ class AccountScreen extends StatelessWidget {
               backgroundImage: NetworkImage(user.profileImage),
             ),
             const SizedBox(height: 16.0),
-            _buildProfileInfoRow(icon: Icons.person, text: user.firstName),
+            _buildProfileInfoRow(icon: Icons.person, text: user.fullName),
             _buildProfileInfoRow(icon: Icons.phone, text: user.phoneNumber),
             _buildProfileInfoRow(icon: Icons.email, text: user.email),
             _buildProfileInfoRow(icon: Icons.location_on, text: user.location),
