@@ -25,7 +25,8 @@ class MenuScreen extends StatefulWidget {
 }
 
 class MenuScreenState extends State<MenuScreen> {
-  Future<ProfileEntity?> _fetchUserProfile(int userId) async {
+  Future<ProfileEntityGet?> _fetchUserProfile(int userId) async {
+    print('Fetching user profile with id: $userId'); // Debug
     final profileDataSource = ProfileDataSource();
     try {
       return await profileDataSource.getProfileByUserId(userId);

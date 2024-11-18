@@ -93,13 +93,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   OutlinedButton(
                     onPressed: () {
                        Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => CreateAccountScreen(authService: widget.authService),
-      ),
-    );
-                      
-                      
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CreateAccountScreen(authService: widget.authService),
+                        ),
+                      );
                     },
                     style: OutlinedButton.styleFrom(
                       side: BorderSide(color: Colors.green),

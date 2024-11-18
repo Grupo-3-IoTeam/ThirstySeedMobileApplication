@@ -7,7 +7,7 @@ class ProfileService {
 
   ProfileService({required this.dataSource});
 
-  Future<bool> createProfile(ProfileEntity profile) async {
+  Future<bool> createProfile(ProfileEntityPost profile) async {
     return await dataSource.createProfile(profile);
   }
 
