@@ -88,6 +88,8 @@ class _ScheduleListScreenState extends State<ScheduleListScreen> {
                                   const SizedBox(height: 8),
                                   Text('Time: ${schedule.setTime}'),
                                   Text('Automatic: ${schedule.isAutomatic ? 'Yes' : 'No'}'),
+                                  Text('Estimated Time: ${schedule.estimatedTimeHours} hours'),
+                                  Text('Expected Moisture: ${schedule.expectedMoisture}%'),
                                 ],
                               ),
                             ),
