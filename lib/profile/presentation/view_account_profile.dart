@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:thirstyseed/iam/application/auth_service.dart';
+import 'package:thirstyseed/iam/presentation/login_screen.dart';
 import 'package:thirstyseed/profile/domain/entities/profile_entity.dart';
-
 
 class AccountScreen extends StatelessWidget {
   final ProfileEntity user;
+  final AuthService authService;
 
-  const AccountScreen({Key? key, required this.user}) : super(key: key);
+  const AccountScreen({Key? key, required this.user, required this.authService}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -32,6 +34,22 @@ class AccountScreen extends StatelessWidget {
             const SizedBox(height: 20.0),
             _buildSectionHeader(icon: Icons.water_drop, title: "Proveedor de agua"),
             const SizedBox(height: 10.0),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => LoginScreen(authService: authService),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromARGB(255, 182, 48, 25),
+                padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 12.0),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+              child: const Text('Salir', style: TextStyle(fontSize: 16, color: Colors.white)),
+            ),
           ],
         ),
       ),
@@ -77,6 +95,4 @@ class AccountScreen extends StatelessWidget {
       ],
     );
   }
-
-  
 }

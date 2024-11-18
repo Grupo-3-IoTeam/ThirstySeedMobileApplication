@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:thirstyseed/iam/application/auth_service.dart';
-import 'package:thirstyseed/iam/presentation/login_screen.dart';
 import 'package:thirstyseed/iam/domain/entities/auth_entity.dart';
 import 'package:thirstyseed/irrigation/application/plot_service.dart';
 import 'package:thirstyseed/irrigation/application/schedule_service.dart';
@@ -48,7 +47,7 @@ class MenuScreenState extends State<MenuScreen> {
             Container(
               width: double.infinity,
               color: Colors.green[100],
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.only(top: 60.0, bottom: 16.0, left: 16.0, right: 16.0), // Adjusted padding to move the header down further
               child: const Row(
                 children: [
                   Icon(
@@ -129,24 +128,28 @@ class MenuScreenState extends State<MenuScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => AccountScreen(user: profile),
+                            builder: (context) => AccountScreen(user: profile, authService: widget.authService),
                           ),
                         );
                       }
                     },
                   ),
-                  _buildMenuCard(
-                    icon: Icons.exit_to_app,
-                    text: "Salir",
-                    color: Colors.blueAccent,
-                    onTap: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => LoginScreen(authService: widget.authService),
-                        ),
-                      );
-                    },
+                ],
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  Image.network(
+                    'https://media.tenor.com/mVb37LRHswIAAAAM/shae-waving.gif',
+                    height: 200,
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    '¡Hola! Comienza con alguna de las opciones para cuidar tus forrajes y programar el riego.',
+                    style: TextStyle(fontSize: 14, color: Color.fromARGB(255, 0, 0, 0)),
+                    textAlign: TextAlign.center,
                   ),
                 ],
               ),
