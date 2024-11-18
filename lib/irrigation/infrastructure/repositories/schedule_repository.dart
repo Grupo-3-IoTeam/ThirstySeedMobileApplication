@@ -13,15 +13,7 @@ class ScheduleRepository {
       rethrow;
     }
   }
-
-  Future<bool> createScheduleForUser(int userId, Schedule schedule) async {
-    try {
-      return await dataSource.createScheduleForUser(userId, schedule);
-    } catch (e) {
-      rethrow;
-    }
-  }
-
+  
   Future<Schedule> getScheduleById(int scheduleId) async {
     try {
       return await dataSource.getScheduleById(scheduleId);

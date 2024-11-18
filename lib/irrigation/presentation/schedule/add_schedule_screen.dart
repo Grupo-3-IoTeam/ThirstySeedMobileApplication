@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart'; // Añadido para el formateo de la hora
 import 'package:thirstyseed/irrigation/domain/entities/schedule_entity.dart';
 import 'package:thirstyseed/irrigation/application/schedule_service.dart';
 import 'package:thirstyseed/irrigation/application/plot_service.dart';
@@ -28,6 +29,7 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
   final _estimatedTimeHoursController = TextEditingController();
   final _setTimeController = TextEditingController();
   final _angleController = TextEditingController();
+  final _expectedMoistureController = TextEditingController(); // Controlador para la humedad esperada
   bool _isAutomatic = false;
   Plot? _selectedPlot;
   List<Plot> _plots = [];
@@ -48,6 +50,7 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
     _estimatedTimeHoursController.text = schedule.estimatedTimeHours.toString();
     _setTimeController.text = schedule.setTime;
     _angleController.text = schedule.angle.toString();
+    _expectedMoistureController.text = schedule.expectedMoisture.toString();
     _isAutomatic = schedule.isAutomatic;
     if (_isAutomatic) {
       _populateAutomaticFields();
@@ -59,44 +62,63 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
     _pressureController.text = '2';
     _sprinklerRadiusController.text = '5';
     _estimatedTimeHoursController.text = '2';
-    _setTimeController.text = '08:00';
+    _setTimeController.text = '08:00 AM';
     _angleController.text = '90';
+    _expectedMoistureController.text = '70';
   }
 
-void _loadPlots() async {
-  try {
-    final plots = await widget.plotService.getPlotsByUserId();
-    setState(() {
-      _plots = plots;
-      if (widget.schedule != null) {
-        _selectedPlot = _plots.firstWhere(
-          (plot) => plot.id == widget.schedule!.plotId,
-          orElse: () => _plots.isNotEmpty
-              ? _plots.first
-              : Plot(
-                  id: 0,
-                  userId: 0,
-                  name: 'Plot no disponible',
-                  location: 'Ubicación desconocida',
-                  extension: 0,
-                  size: 0,
-                  status: 'Indefinido',
-                  imageUrl: '',
-                  createdAt: DateTime.now().toString(),
-                  updatedAt: DateTime.now().toString(),
-                ),
-        );
-      } else if (_plots.isNotEmpty) {
-        _selectedPlot = _plots.first; // Selecciona el primer plot si no hay uno ya seleccionado
-      }
-    });
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Error al cargar los plots: $e')),
+  void _loadPlots() async {
+    try {
+      final plots = await widget.plotService.getPlotsByUserId();
+      setState(() {
+        _plots = plots;
+        if (widget.schedule != null) {
+          _selectedPlot = _plots.firstWhere(
+            (plot) => plot.id == widget.schedule!.plotId,
+            orElse: () => _plots.isNotEmpty
+                ? _plots.first
+                : Plot(
+                    id: 0,
+                    userId: 0,
+                    name: 'Plot no disponible',
+                    location: 'Ubicación desconocida',
+                    extension: 0,
+                    size: 0,
+                    status: 'Indefinido',
+                    imageUrl: '',
+                    createdAt: DateTime.now().toString(),
+                    updatedAt: DateTime.now().toString(),
+                  ),
+          );
+        } else if (_plots.isNotEmpty) {
+          _selectedPlot = _plots.first;
+        }
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al cargar los plots: $e')),
+      );
+    }
+  }
+
+  Future<void> _selectTime(BuildContext context) async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
     );
+    if (picked != null) {
+      final DateTime now = DateTime.now();
+      final DateTime selectedTime = DateTime(
+        now.year,
+        now.month,
+        now.day,
+        picked.hour,
+        picked.minute,
+      );
+      final String formattedTime = DateFormat('hh:mm a').format(selectedTime);
+      _setTimeController.text = formattedTime;
+    }
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -123,14 +145,13 @@ void _loadPlots() async {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // Dropdown for selecting Plot
             DropdownButtonFormField<Plot>(
               value: _selectedPlot,
               hint: const Text('Select Plot'),
               items: _plots.map((Plot plot) {
                 return DropdownMenuItem<Plot>(
                   value: plot,
-                  child: Text(plot.name ?? 'Plot sin nombre'),
+                  child: Text(plot.name),
                 );
               }).toList(),
               onChanged: (Plot? value) {
@@ -144,8 +165,6 @@ void _loadPlots() async {
               ),
             ),
             const SizedBox(height: 16),
-
-            // Switch for automatic schedule
             SwitchListTile(
               title: const Text('Automatic Schedule'),
               value: _isAutomatic,
@@ -163,9 +182,14 @@ void _loadPlots() async {
             _buildTextField(_waterAmountController, 'Water Amount (L)', enabled: !_isAutomatic),
             _buildTextField(_pressureController, 'Pressure (bar)', enabled: !_isAutomatic),
             _buildTextField(_sprinklerRadiusController, 'Sprinkler Radius (m)', enabled: !_isAutomatic),
-            const Text('Expected Moisture: 70%', style: TextStyle(fontSize: 16)),
+            _buildTextField(_expectedMoistureController, 'Expected Moisture (%)', enabled: !_isAutomatic),
             _buildTextField(_estimatedTimeHoursController, 'Estimated Time (hours)', enabled: !_isAutomatic),
-            _buildTextField(_setTimeController, 'Set Time (e.g. 08:00)', enabled: !_isAutomatic),
+            GestureDetector(
+              onTap: () => _selectTime(context),
+              child: AbsorbPointer(
+                child: _buildTextField(_setTimeController, 'Set Time (e.g. 08:00 AM)', enabled: true),
+              ),
+            ),
             _buildTextField(_angleController, 'Angle (degrees)', enabled: !_isAutomatic),
             const SizedBox(height: 24),
             Row(
@@ -194,23 +218,28 @@ void _loadPlots() async {
                   onPressed: _selectedPlot != null
                       ? () async {
                           final newSchedule = Schedule(
-                            id: widget.schedule?.id ?? 0,
-                            plotId: _selectedPlot!.id, // Use selected Plot ID
+                            plotId: _selectedPlot!.id,
                             waterAmount: double.tryParse(_waterAmountController.text) ?? 0,
                             pressure: double.tryParse(_pressureController.text) ?? 0,
                             sprinklerRadius: double.tryParse(_sprinklerRadiusController.text) ?? 0,
-                            expectedMoisture: 70,
+                            expectedMoisture: double.tryParse(_expectedMoistureController.text) ?? 0,
                             estimatedTimeHours: double.tryParse(_estimatedTimeHoursController.text) ?? 0,
                             setTime: _setTimeController.text,
                             angle: double.tryParse(_angleController.text) ?? 0,
                             isAutomatic: _isAutomatic,
                           );
 
+                          print("Enviando Schedule: ${newSchedule.toJson()}");
+
                           if (widget.schedule == null) {
-                            await widget.scheduleService.createSchedule(newSchedule);
+                            bool created = await widget.scheduleService.createSchedule(newSchedule);
+                            print("Response al crear schedule: ${created ? 'Success' : 'Failed'}");
                           } else {
-                            await widget.scheduleService.updateSchedule(newSchedule.id, newSchedule);
+                            final updatedSchedule = newSchedule.copyWith(id: widget.schedule!.id);
+                            bool updated = await widget.scheduleService.updateSchedule(updatedSchedule.id!, updatedSchedule);
+                            print("Response al actualizar schedule: ${updated ? 'Success' : 'Failed'}");
                           }
+
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
@@ -257,6 +286,7 @@ void _loadPlots() async {
     _waterAmountController.clear();
     _pressureController.clear();
     _sprinklerRadiusController.clear();
+    _expectedMoistureController.clear();
     _estimatedTimeHoursController.clear();
     _setTimeController.clear();
     _angleController.clear();

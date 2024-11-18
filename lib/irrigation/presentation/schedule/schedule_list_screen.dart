@@ -23,6 +23,15 @@ class _ScheduleListScreenState extends State<ScheduleListScreen> {
     _schedulesFuture = widget.scheduleService.getSchedulesByUserId();
   }
 
+  Future<String> _getPlotName(int plotId) async {
+    try {
+      final plot = await widget.plotService.getPlotById(plotId);
+      return plot.name;
+    } catch (e) {
+      return 'Plot not found';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,42 +54,76 @@ class _ScheduleListScreenState extends State<ScheduleListScreen> {
               itemCount: schedules.length,
               itemBuilder: (context, index) {
                 final schedule = schedules[index];
-                return ListTile(
-                  title: Text('Plot ID: ${schedule.plotId}, Time: ${schedule.setTime}'),
-                  subtitle: Text('Automatic: ${schedule.isAutomatic ? 'Yes' : 'No'}'),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.edit, color: Colors.green),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => AddScheduleScreen(
-                                scheduleService: widget.scheduleService,
-                                plotService: widget.plotService,
-                                schedule: schedule,
+                return FutureBuilder<String>(
+                  future: _getPlotName(schedule.plotId),
+                  builder: (context, plotSnapshot) {
+                    final plotName = plotSnapshot.connectionState == ConnectionState.done && plotSnapshot.hasData
+                        ? plotSnapshot.data!
+                        : 'Loading...';
+                    return Card(
+                      elevation: 4,
+                      margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Row(
+                          children: [
+                            Image.network(
+                              'https://ramcorpwire.com/images/blog/28/sprinkler-system.png',
+                              width: 50,
+                              height: 50,
+                              fit: BoxFit.cover,
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Plot: $plotName',
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text('Time: ${schedule.setTime}'),
+                                  Text('Automatic: ${schedule.isAutomatic ? 'Yes' : 'No'}'),
+                                ],
                               ),
                             ),
-                          ).then((_) {
-                            setState(() {
-                              _schedulesFuture = widget.scheduleService.getSchedulesByUserId();
-                            });
-                          });
-                        },
+                            IconButton(
+                              icon: const Icon(Icons.edit, color: Colors.green),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => AddScheduleScreen(
+                                      scheduleService: widget.scheduleService,
+                                      plotService: widget.plotService,
+                                      schedule: schedule,
+                                    ),
+                                  ),
+                                ).then((_) {
+                                  setState(() {
+                                    _schedulesFuture = widget.scheduleService.getSchedulesByUserId();
+                                  });
+                                });
+                              },
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () async {
+                                await widget.scheduleService.deleteSchedule(schedule.id as int);
+                                setState(() {
+                                  _schedulesFuture = widget.scheduleService.getSchedulesByUserId();
+                                });
+                              },
+                            ),
+                          ],
+                        ),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () async {
-                          await widget.scheduleService.deleteSchedule(schedule.id);
-                          setState(() {
-                            _schedulesFuture = widget.scheduleService.getSchedulesByUserId();
-                          });
-                        },
-                      ),
-                    ],
-                  ),
+                    );
+                  },
                 );
               },
             );

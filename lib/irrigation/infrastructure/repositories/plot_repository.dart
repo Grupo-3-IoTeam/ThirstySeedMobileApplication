@@ -14,4 +14,8 @@ class PlotRepository {
   Future<List<Plot>> getPlotsByUserId(int userId) async {
     return await dataSource.getPlotsByUserId(userId);
   }
+
+  Future<Plot> getPlotById(int id) async {
+    return await dataSource.getPlotById(id);
+  }
 }

@@ -17,4 +17,12 @@ class PlotService {
       rethrow;
     }
   }
+
+  Future<Plot> getPlotById(int id) async {
+    try {
+      return await repository.getPlotById(id);
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

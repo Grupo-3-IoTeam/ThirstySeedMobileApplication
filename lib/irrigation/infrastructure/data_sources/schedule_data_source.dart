@@ -12,16 +12,7 @@ class ScheduleDataSource {
       headers: {'Content-Type': 'application/json'},
       body: body,
     );
-    return response.statusCode == 201;
-  }
 
-  Future<bool> createScheduleForUser(int userId, Schedule schedule) async {
-    final body = json.encode(schedule.toJson());
-    final response = await http.post(
-      Uri.parse('$baseUrl/user/$userId'),
-      headers: {'Content-Type': 'application/json'},
-      body: body,
-    );
     return response.statusCode == 201;
   }
 

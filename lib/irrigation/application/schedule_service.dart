@@ -15,16 +15,6 @@ class ScheduleService {
     }
   }
 
-  Future<bool> createScheduleForUser(Schedule schedule) async {
-    try {
-      final userId = UserSession().getUserId();
-      if (userId == null) throw Exception('User ID no encontrado');
-      return await repository.createScheduleForUser(userId, schedule);
-    } catch (e) {
-      rethrow;
-    }
-  }
-
   Future<Schedule> getScheduleById(int scheduleId) async {
     try {
       return await repository.getScheduleById(scheduleId);

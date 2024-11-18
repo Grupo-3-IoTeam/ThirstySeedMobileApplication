@@ -25,4 +25,15 @@ class PlotDataSource {
       throw Exception('Error al obtener los plots para el usuario');
     }
   }
+
+  // Get plot by id
+  Future<Plot> getPlotById(int id) async {
+    final response = await http.get(Uri.parse('$baseUrl/$id'));
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> plotJson = json.decode(response.body);
+      return Plot.fromJson(plotJson);
+    } else {
+      throw Exception('Error al obtener el plot');
+    }
+  }
 }

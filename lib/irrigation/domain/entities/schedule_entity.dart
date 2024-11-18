@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
+
 class Schedule extends Equatable {
-  final int id;
+  final int? id; // `id` ahora es opcional
   final int plotId;
   final double waterAmount; // Cantidad de agua en litros
   final double pressure; // Presión del agua en bares
@@ -12,7 +13,7 @@ class Schedule extends Equatable {
   final bool isAutomatic; // Indica si el riego es automático
 
   const Schedule({
-    required this.id,
+    this.id, // Hacemos opcional el `id`
     required this.plotId,
     required this.waterAmount,
     required this.pressure,
@@ -25,7 +26,7 @@ class Schedule extends Equatable {
   });
 
   @override
-  List<Object> get props => [
+  List<Object?> get props => [
         id,
         plotId,
         waterAmount,
@@ -41,8 +42,8 @@ class Schedule extends Equatable {
   /// Crear un objeto `Schedule` desde un JSON
   factory Schedule.fromJson(Map<String, dynamic> json) {
     return Schedule(
-      id: json['id'] ?? 0,
-      plotId: json['plotId'] ?? 0,
+      id: json['id'],
+      plotId: json['plotId'],
       waterAmount: (json['waterAmount'] ?? 0).toDouble(),
       pressure: (json['pressure'] ?? 0).toDouble(),
       sprinklerRadius: (json['sprinklerRadius'] ?? 0).toDouble(),
@@ -57,7 +58,6 @@ class Schedule extends Equatable {
   /// Convertir un objeto `Schedule` a JSON
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
       'plotId': plotId,
       'waterAmount': waterAmount,
       'pressure': pressure,
@@ -69,4 +69,32 @@ class Schedule extends Equatable {
       'isAutomatic': isAutomatic,
     };
   }
+
+
+  Schedule copyWith({
+    int? id,
+    int? plotId,
+    double? waterAmount,
+    double? pressure,
+    double? sprinklerRadius,
+    double? expectedMoisture,
+    double? estimatedTimeHours,
+    String? setTime,
+    double? angle,
+    bool? isAutomatic,
+  }) {
+    return Schedule(
+      id: id ?? this.id,
+      plotId: plotId ?? this.plotId,
+      waterAmount: waterAmount ?? this.waterAmount,
+      pressure: pressure ?? this.pressure,
+      sprinklerRadius: sprinklerRadius ?? this.sprinklerRadius,
+      expectedMoisture: expectedMoisture ?? this.expectedMoisture,
+      estimatedTimeHours: estimatedTimeHours ?? this.estimatedTimeHours,
+      setTime: setTime ?? this.setTime,
+      angle: angle ?? this.angle,
+      isAutomatic: isAutomatic ?? this.isAutomatic,
+    );
+  }
+
 }
