@@ -58,7 +58,7 @@ class _RegisterPlotScreenState extends State<RegisterPlotScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => RegisterNodeScreen(plotId: plotId),
+              builder: (context) => RegisterNodeScreen(plotId: plotId, userId: widget.userId),
             ),
           );
 
