@@ -1,67 +1,178 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import '../../irrigation/domain/entities/plot_entity.dart';
 
-typedef FetchPlots = Future<List<Plot>> Function();
+class PlotStatusScreen extends StatefulWidget {
+  final int userId;
 
-Future<List<Plot>> fetchPlotsFromBackend() async {
-  final url = Uri.parse('https://thirstyseedapi-production.up.railway.app/api/v1/plot');  // Cambié la URL aquí
-  final response = await http.get(url);
+  const PlotStatusScreen({Key? key, required this.userId}) : super(key: key);
 
-  if (response.statusCode == 200) {
-    final List<dynamic> data = json.decode(response.body);
-    return data.map((plotData) => Plot.fromJson(plotData)).toList();
-  } else {
-    throw Exception('Error al obtener parcelas: ${response.statusCode}');
-  }
+  @override
+  _PlotStatusScreenState createState() => _PlotStatusScreenState();
 }
 
-class PlotStatusScreen extends StatelessWidget {
-  final FetchPlots fetchPlots;
+class _PlotStatusScreenState extends State<PlotStatusScreen> {
+  List<dynamic> _plots = [];
 
-  PlotStatusScreen({Key? key, required this.fetchPlots}) : super(key: key);
+  Future<void> fetchPlots() async {
+    final url = Uri.parse('https://thirstyseedapi-production.up.railway.app/api/v1/plot/user/${widget.userId}');
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        setState(() {
+          _plots = json.decode(response.body);
+        });
+      } else {
+        throw Exception('Error al cargar parcelas: ${response.statusCode}');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al cargar parcelas: $e')),
+      );
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchPlots();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.green[100],
         title: const Text(
-          'Estado de parcela',
+          'Registered Plots',
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
+        backgroundColor: Colors.green[100],
         centerTitle: true,
       ),
-      body: FutureBuilder<List<Plot>>(
-        future: fetchPlots(),
-        builder: (context, snapshot) {
-          // Caso cuando está cargando
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
+      body: _plots.isEmpty
+          ? const Center(child: CircularProgressIndicator())
+          : ListView.builder(
+              itemCount: _plots.length,
+              itemBuilder: (context, index) {
+                final plot = _plots[index];
+                return Card(
+                  margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  child: ListTile(
+                    title: Text(
+                      'Land Name: ${plot['name']}',
+                      style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.green),
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Location: ${plot['location']}'),
+                        Text('Extension of Land: ${plot['extension']} m²'),
+                        Text('Plot Status: ${plot['status']}'),
+                      ],
+                    ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => NodeStatusScreen(plotId: plot['id']),
+                        ),
+                      );
+                    },
+                  ),
+                );
+              },
+            ),
+    );
+  }
+}
 
-          // Caso cuando hay un error
-          else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
+class NodeStatusScreen extends StatefulWidget {
+  final int plotId;
 
-          // Caso cuando no hay datos
-          else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No hay parcelas disponibles'));
-          }
+  const NodeStatusScreen({Key? key, required this.plotId}) : super(key: key);
 
-          // Caso cuando se obtienen datos exitosamente
-          else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-            final plot = snapshot.data!.first;
-            // Aquí puedes continuar con el resto de la lógica.
-            return Center(child: Text('Parcela: ${plot.name}')); // Ejemplo de uso del primer plot.
-          }
+  @override
+  _NodeStatusScreenState createState() => _NodeStatusScreenState();
+}
 
-          // Retorno predeterminado en caso de que no caiga en los otros casos
-          return const Center(child: Text('Algo salió mal'));
-        },
+class _NodeStatusScreenState extends State<NodeStatusScreen> {
+  List<dynamic> _nodes = [];
+
+  Future<void> fetchNodes() async {
+    final url = Uri.parse('https://thirstyseedapi-production.up.railway.app/api/v1/node/plot/${widget.plotId}');
+    print('Fetching nodes for plotId: ${widget.plotId}'); // Verificar plotId
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        print('Response body: $data'); // Verificar datos recibidos
+        setState(() {
+          _nodes = data;
+        });
+      } else {
+        print('Error response code: ${response.statusCode}');
+        throw Exception('Error al cargar nodos: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Exception: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al cargar nodos: $e')),
+      );
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchNodes();
+  }
+
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Nodes for Plot ID ${widget.plotId}'),
+        backgroundColor: Colors.green[100],
+        centerTitle: true,
       ),
+      body: _nodes.isEmpty
+          ? const Center(child: CircularProgressIndicator())
+          : ListView.builder(
+              itemCount: _nodes.length,
+              itemBuilder: (context, index) {
+                final node = _nodes[index];
+                return Card(
+                  margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  child: ListTile(
+                    leading: Icon(
+                      Icons.sensors,
+                      color: node['statusClass'] == 'status-error' ? Colors.red : Colors.green,
+                      size: 40,
+                    ),
+                    title: Text(
+                      'Ubicación: ${node['nodelocation']}',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Humedad: ${node['moisture']}%'),
+                        Text('Indicador: ${node['indicator']}'),
+                        Text(
+                          'Estado: ${node['status']}',
+                          style: TextStyle(
+                            color: node['statusClass'] == 'status-error' ? Colors.red : Colors.green,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
     );
   }
 }
