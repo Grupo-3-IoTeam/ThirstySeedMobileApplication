@@ -40,116 +40,140 @@ class MenuScreenState extends State<MenuScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
+        
         body: Column(
           children: [
+            // Header adaptado
             Container(
               width: double.infinity,
               color: Colors.green[100],
-              padding: const EdgeInsets.only(top: 60.0, bottom: 16.0, left: 16.0, right: 16.0), // Adjusted padding to move the header down further
-              child: const Row(
+              padding: EdgeInsets.symmetric(
+                vertical: screenHeight * 0.03,
+                horizontal: screenWidth * 0.04,
+              ),
+              child: Row(
                 children: [
-                  Icon(
-                    Icons.eco,
-                    color: Colors.green,
-                    size: 40,
-                  ),
-                  SizedBox(width: 10),
+                  Icon(Icons.eco, color: Colors.green, size: screenWidth * 0.1),
+                  SizedBox(width: screenWidth * 0.02),
                   Text(
                     'Thirsty Seed',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 20,
+                      fontSize: screenWidth * 0.06,
                       color: Colors.black,
                     ),
                   ),
                 ],
               ),
             ),
+
+            // GridView adaptado
             Expanded(
-              child: GridView.count(
-                crossAxisCount: 2,
-                padding: const EdgeInsets.all(16.0),
-                crossAxisSpacing: 16.0,
-                mainAxisSpacing: 16.0,
-                children: [
-                  _buildMenuCard(
-                    icon: Icons.settings,
-                    text: "Administrar parcelas",
-                    color: Colors.green,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => PlotScreen(userId: widget.currentUser.id)),
-                      );
+              child: GridView.builder(
+                padding: EdgeInsets.all(screenWidth * 0.04),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: screenWidth * 0.04,
+                  mainAxisSpacing: screenHeight * 0.02,
+                  childAspectRatio: 0.98, // Mantener proporción cuadrada
+                ),
+                itemCount: 4,
+                itemBuilder: (context, index) {
+                  final menuOptions = [
+                    {
+                      "icon": Icons.settings,
+                      "text": "Administrar parcelas",
+                      "color": Colors.green,
+                      "onTap": () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => PlotScreen(userId: widget.currentUser.id)),
+                        );
+                      }
                     },
-                  ),
-                  _buildMenuCard(
-                    icon: Icons.remove_red_eye,
-                    text: "Ver estado de parcelas",
-                    color: Colors.blue,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => PlotStatusScreen(userId: widget.currentUser.id),
-                        ),
-                      );
-                    },
-                  ),
-                  _buildMenuCard(
-                    icon: Icons.schedule,
-                    text: "Riegos programados",
-                    color: Colors.teal,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) {
-                          final plotDataSource = PlotDataSource();
-                          final plotRepository = PlotRepository(dataSource: plotDataSource);
-                          final plotService = PlotService(repository: plotRepository);
-                          final scheduleDataSource = ScheduleDataSource();
-                          final scheduleRepository = ScheduleRepository(dataSource: scheduleDataSource);
-                          final scheduleService = ScheduleService(repository: scheduleRepository);
-                          return ScheduleListScreen(scheduleService: scheduleService, plotService: plotService);
-                        }),
-                      );
-                    },
-                  ),
-                  _buildMenuCard(
-                    icon: Icons.person,
-                    text: "Ver Perfil",
-                    color: Colors.green,
-                    onTap: () async {
-                      final userId = widget.currentUser.id;
-                      final profile = await _fetchUserProfile(userId);
-                      if (profile != null) {
+                    {
+                      "icon": Icons.remove_red_eye,
+                      "text": "Ver estado de parcelas",
+                      "color": Colors.blue,
+                      "onTap": () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => AccountScreen(user: profile, authService: widget.authService),
+                            builder: (context) => PlotStatusScreen(userId: widget.currentUser.id),
                           ),
                         );
                       }
                     },
-                  ),
-                ],
+                    {
+                      "icon": Icons.schedule,
+                      "text": "Riegos programados",
+                      "color": Colors.teal,
+                      "onTap": () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) {
+                            final plotDataSource = PlotDataSource();
+                            final plotRepository = PlotRepository(dataSource: plotDataSource);
+                            final plotService = PlotService(repository: plotRepository);
+                            final scheduleDataSource = ScheduleDataSource();
+                            final scheduleRepository = ScheduleRepository(dataSource: scheduleDataSource);
+                            final scheduleService = ScheduleService(repository: scheduleRepository);
+                            return ScheduleListScreen(scheduleService: scheduleService, plotService: plotService);
+                          }),
+                        );
+                      }
+                    },
+                    {
+                      "icon": Icons.person,
+                      "text": "Ver Perfil",
+                      "color": Colors.green,
+                      "onTap": () async {
+                        final userId = widget.currentUser.id;
+                        final profile = await _fetchUserProfile(userId);
+                        if (profile != null) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => AccountScreen(user: profile, authService: widget.authService),
+                            ),
+                          );
+                        }
+                      }
+                    },
+                  ];
+                  return _buildMenuCard(
+                    icon: menuOptions[index]["icon"] as IconData,
+                    text: menuOptions[index]["text"] as String,
+                    color: menuOptions[index]["color"] as Color,
+                    onTap: menuOptions[index]["onTap"] as VoidCallback,
+                  );
+                },
               ),
             ),
-            Container(
-              padding: const EdgeInsets.all(16.0),
+
+            // Imagen adaptada con descripción
+            Padding(
+              padding: EdgeInsets.all(screenWidth * 0.04),
               child: Column(
                 children: [
                   Image.network(
                     'https://media.tenor.com/dutdoOw7PjsAAAAj/happy-cat.gif',
-                    height: 200,
+                    height: screenHeight * 0.25,
+                    fit: BoxFit.contain,
                   ),
-                  const SizedBox(height: 10),
-                  const Text(
+                  SizedBox(height: screenHeight * 0.02),
+                  Text(
                     '¡Hola! Comienza con alguna de las opciones para cuidar tus forrajes y programar el riego.',
-                    style: TextStyle(fontSize: 14, color: Color.fromARGB(255, 0, 0, 0)),
+                    style: TextStyle(
+                      fontSize: screenWidth * 0.04,
+                      color: Colors.black87,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -167,22 +191,25 @@ class MenuScreenState extends State<MenuScreen> {
     required Color color,
     required VoidCallback onTap,
   }) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return GestureDetector(
       onTap: onTap,
       child: Card(
         elevation: 5,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(screenWidth * 0.04),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, color: color, size: 50),
-              const SizedBox(height: 16),
+              Icon(icon, color: color, size: screenWidth * 0.15),
+              SizedBox(height: screenHeight * 0.02),
               Text(
                 text,
-                style: const TextStyle(
-                  fontSize: 16,
+                style: TextStyle(
+                  fontSize: screenWidth * 0.04,
                   fontWeight: FontWeight.bold,
                   color: Colors.black87,
                 ),
