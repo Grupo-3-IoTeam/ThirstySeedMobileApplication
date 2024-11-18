@@ -12,6 +12,7 @@ class ScheduleDataSource {
       headers: {'Content-Type': 'application/json'},
       body: body,
     );
+
     return response.statusCode == 201;
   }
 
@@ -31,6 +32,16 @@ class ScheduleDataSource {
       return schedulesJson.map((json) => Schedule.fromJson(json)).toList();
     } else {
       throw Exception('Error al obtener los horarios de riego');
+    }
+  }
+
+  Future<List<Schedule>> getSchedulesByUserId(int userId) async {
+    final response = await http.get(Uri.parse('$baseUrl/user/$userId'));
+    if (response.statusCode == 200) {
+      final List<dynamic> schedulesJson = json.decode(response.body);
+      return schedulesJson.map((json) => Schedule.fromJson(json)).toList();
+    } else {
+      throw Exception('Error al obtener los horarios de riego para el usuario');
     }
   }
 

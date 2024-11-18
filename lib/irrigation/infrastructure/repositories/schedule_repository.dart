@@ -13,7 +13,7 @@ class ScheduleRepository {
       rethrow;
     }
   }
-
+  
   Future<Schedule> getScheduleById(int scheduleId) async {
     try {
       return await dataSource.getScheduleById(scheduleId);
@@ -25,6 +25,14 @@ class ScheduleRepository {
   Future<List<Schedule>> getAllSchedules() async {
     try {
       return await dataSource.getAllSchedules();
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<List<Schedule>> getSchedulesByUserId(int userId) async {
+    try {
+      return await dataSource.getSchedulesByUserId(userId);
     } catch (e) {
       rethrow;
     }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:thirstyseed/common/user_session.dart';
 import 'package:thirstyseed/iam/presentation/create_account_screen.dart';
 import '../application/auth_service.dart';
 import '../../ui/screens/menu_screen.dart';
@@ -17,26 +18,29 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
 
   void _login() async {
-    final user = await widget.authService.login(
-      _emailController.text,
-      _passwordController.text,
+  final user = await widget.authService.login(
+    _emailController.text,
+    _passwordController.text,
+  );
+  if (user != null) {
+    UserSession().setUserId(user.id); // Guardamos el userId en la sesión
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MenuScreen(authService: widget.authService, currentUser: user),
+      ),
     );
-    if (user != null) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => MenuScreen(authService: widget.authService, currentUser: user),
-        ),
-      );
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Bienvenido, ${user}!')),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Usuario no encontrado o contraseña incorrecta')),
-      );
-    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Bienvenido, ${user.email}!')),
+    );
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Usuario no encontrado o contraseña incorrecta')),
+    );
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
