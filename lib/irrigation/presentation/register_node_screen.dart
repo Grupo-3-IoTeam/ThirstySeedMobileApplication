@@ -3,84 +3,76 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class RegisterNodeScreen extends StatefulWidget {
-  const RegisterNodeScreen({super.key});
+  final int plotId;
+
+  const RegisterNodeScreen({Key? key, required this.plotId}) : super(key: key);
 
   @override
   _RegisterNodeScreenState createState() => _RegisterNodeScreenState();
 }
 
 class _RegisterNodeScreenState extends State<RegisterNodeScreen> {
-  final List<Map<String, TextEditingController>> _nodes = [
-    {
-      'name': TextEditingController(),
-      'type': TextEditingController(),
-      'location': TextEditingController(),
-    }
-  ];
-  final ScrollController _scrollController = ScrollController();
+  final TextEditingController _locationController = TextEditingController();
+  final TextEditingController _moistureController = TextEditingController();
+  final TextEditingController _indicatorController = TextEditingController();
+  final TextEditingController _statusController = TextEditingController(text: 'true');
+  final TextEditingController _productcodeController = TextEditingController();
 
-  void _addNode() {
-    setState(() {
-      _nodes.add({
-        'name': TextEditingController(),
-        'type': TextEditingController(),
-        'location': TextEditingController(),
-      });
-    });
+  bool _isSubmitting = false;
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent + 200,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
+  Future<void> _registerNode() async {
+    if (_locationController.text.isEmpty || _moistureController.text.isEmpty ||
+        _indicatorController.text.isEmpty || _statusController.text.isEmpty || _productcodeController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Por favor, complete todos los campos')),
       );
-    });
-  }
+      return;
+    }
 
-  void _removeNode(int index) {
     setState(() {
-      _nodes.removeAt(index);
+      _isSubmitting = true;
     });
-  }
-
-  Future<void> _sendNodesToBackend() async {
-    final url = Uri.parse('http://tu-api.com/nodos/registrar');
 
     try {
-      for (var node in _nodes) {
-        final response = await http.post(
-          url,
-          headers: {'Content-Type': 'application/json'},
-          body: json.encode({
-            'name': node['name']!.text,
-            'type': node['type']!.text,
-            'location': node['location']!.text,
-          }),
-        );
-
-        if (response.statusCode != 200) {
-          throw Exception('Error al registrar nodo');
-        }
-      }
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Nodos registrados con éxito')),
+      final response = await http.post(
+        Uri.parse('https://thirstyseedapi-production.up.railway.app/api/v1/node'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'plotId': widget.plotId,  // plotId está correcto
+          'nodelocation': _locationController.text.trim(),  // Usa 'nodelocation' en lugar de 'location'
+          'moisture': int.tryParse(_moistureController.text.trim()) ?? 0,  // Humedad, asegurándote que es un número
+          'indicator': _indicatorController.text.trim(),  // Indicador
+          'isActive': _statusController.text.trim().toLowerCase() == 'true',  // 'isActive' debe ser un booleano
+          'productcode': _productcodeController.text.trim(),  // Código del producto
+        }),
       );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        Navigator.pop(context); // Opcional: regresar automáticamente al completar
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Nodo registrado con éxito')),
+        );
+      } else {
+        throw Exception('Failed to register node: ${response.body}');
+      }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: $e')),
       );
+    } finally {
+      setState(() {
+        _isSubmitting = false;
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         backgroundColor: Colors.green[100],
         title: const Text(
-          'Node Registration',
+          'Registrar Nodo',
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
@@ -88,118 +80,74 @@ class _RegisterNodeScreenState extends State<RegisterNodeScreen> {
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'Nodes: ${_nodes.length}',
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.green,
-                ),
-              ),
-            ),
-            const SizedBox(height: 50.0),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              controller: _scrollController,
-              child: Row(
-                children: List.generate(_nodes.length, (index) {
-                  final node = _nodes[index];
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Stack(
-                      children: [
-                        Container(
-                          width: 280,
-                          height: 350,
-                          padding: const EdgeInsets.all(16.0),
-                          decoration: BoxDecoration(
-                            color: Colors.green[50],
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          child: Column(
-                            children: [
-                              const Icon(Icons.spa, size: 60, color: Colors.grey),
-                              const SizedBox(height: 16.0),
-                              _buildTextField(node['name']!, 'Land Name'),
-                              const SizedBox(height: 8.0),
-                              _buildTextField(node['type']!, 'Node Type'),
-                              const SizedBox(height: 8.0),
-                              _buildTextField(node['location']!, 'Location'),
-                            ],
-                          ),
-                        ),
-                        if (_nodes.length > 1)
-                          Positioned(
-                            top: 8,
-                            right: 8,
-                            child: GestureDetector(
-                              onTap: () => _removeNode(index),
-                              child: const Icon(Icons.close, color: Colors.red),
-                            ),
-                          ),
-                      ],
-                    ),
-                  );
-                }),
-              ),
-            ),
-            const SizedBox(height: 40.0),
-            Center(
-              child: FloatingActionButton(
-                onPressed: _addNode,
-                backgroundColor: Colors.green,
-                child: const Icon(Icons.add, size: 30),
-              ),
-            ),
-            const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                  onPressed: _sendNodesToBackend,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                  ),
-                  child: const Text('Guardar'),
-                ),
-                const SizedBox(width: 20),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey,
-                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                  ),
-                  child: const Text('Cancelar'),
-                ),
-              ],
-            ),
+            // Inputs and labels
+            _buildTextField(_locationController, 'Nombre de la locacion', 'Nombre De la locacion'),
+            _buildTextField(_moistureController, 'humedad', 'humedad',numeric: true),
+            _buildTextField(_indicatorController, 'indiacion', 'indicador'),
+            _buildTextField(_statusController, 'estado', 'estado', numeric: true),
+            _buildTextField(_productcodeController, 'codigo de producto', 'codigo de producto'),
+            const SizedBox(height: 30),
+            if (_isSubmitting)
+              const Center(child: CircularProgressIndicator())
+            else
+              _buildButtons(),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String hint) {
-    return TextField(
-      controller: controller,
-      decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: TextStyle(color: Colors.green.withOpacity(0.7)),
-        filled: true,
-        fillColor: Colors.white,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12.0),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(
-            color: Colors.green.withOpacity(0.5),
+  Widget _buildTextField(
+      TextEditingController controller,
+      String label,
+      String placeholder,
+      {bool numeric = false}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.green)),
+        const SizedBox(height: 5),
+        TextField(
+          controller: controller,
+          keyboardType: numeric ? TextInputType.number : TextInputType.text,
+          decoration: InputDecoration(
+            hintText: placeholder,
+            filled: true,
+            fillColor: Colors.green[50],
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: Colors.black, width: 1),
+            ),
           ),
         ),
-      ),
+      ],
+    );
+  }
+
+  Widget _buildButtons() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        ElevatedButton(
+          onPressed: _registerNode,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.green,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          ),
+          child: const Text('Registrar Nodo', style: TextStyle(color: Colors.white)),
+        ),
+        const SizedBox(width: 20),
+        ElevatedButton(
+          onPressed: () => Navigator.pop(context),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.grey,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          ),
+          child: const Text('Cancelar', style: TextStyle(color: Colors.white)),
+        ),
+      ],
     );
   }
 }

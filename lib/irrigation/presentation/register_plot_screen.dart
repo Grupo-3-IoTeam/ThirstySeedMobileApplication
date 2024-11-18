@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'register_node_screen.dart'; // Importa la pantalla de registro de nodos
 
 class RegisterPlotScreen extends StatefulWidget {
   final int userId;
@@ -19,7 +20,7 @@ class _RegisterPlotScreenState extends State<RegisterPlotScreen> {
   final TextEditingController _imageUrlController = TextEditingController();
 
   String? _imageUrl;
-  bool _isSubmitting = false; 
+  bool _isSubmitting = false;
 
   Future<void> _registerPlot() async {
     if (_nameController.text.isEmpty || _locationController.text.isEmpty ||
@@ -49,12 +50,26 @@ class _RegisterPlotScreenState extends State<RegisterPlotScreen> {
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        Navigator.pop(context); // Opcional: regresar automáticamente al completar
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Parcela registrada con éxito')),
-        );
+        final Map<String, dynamic> responseBody = json.decode(response.body);
+        final int? plotId = responseBody['id'];
+
+        if (plotId != null) {
+          // Navegar a RegisterNodeScreen inmediatamente después de un registro exitoso
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => RegisterNodeScreen(plotId: plotId),
+            ),
+          );
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Parcela registrada con éxito')),
+          );
+        } else {
+          throw Exception('El ID de la parcela no se encontró en la respuesta');
+        }
       } else {
-        throw Exception('Failed to register plot: ${response.body}');
+        throw Exception('Error al registrar la parcela: ${response.body}');
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -89,7 +104,6 @@ class _RegisterPlotScreenState extends State<RegisterPlotScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Inputs and labels
             _buildTextField(_imageUrlController, 'URL de la Imagen', 'Ingrese la URL de la imagen'),
             const SizedBox(height: 20),
             _imageUrlPreview(),
@@ -115,10 +129,10 @@ class _RegisterPlotScreenState extends State<RegisterPlotScreen> {
   }
 
   Widget _buildTextField(
-    TextEditingController controller, 
-    String label, 
-    String placeholder, 
-    {bool numeric = false}) {
+      TextEditingController controller,
+      String label,
+      String placeholder,
+      {bool numeric = false}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -167,4 +181,3 @@ class _RegisterPlotScreenState extends State<RegisterPlotScreen> {
     );
   }
 }
-
