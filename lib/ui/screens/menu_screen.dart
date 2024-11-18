@@ -142,7 +142,7 @@ class MenuScreenState extends State<MenuScreen> {
               child: Column(
                 children: [
                   Image.network(
-                    'https://media.tenor.com/mVb37LRHswIAAAAM/shae-waving.gif',
+                    'https://media.tenor.com/dutdoOw7PjsAAAAj/happy-cat.gif',
                     height: 200,
                   ),
                   const SizedBox(height: 10),
