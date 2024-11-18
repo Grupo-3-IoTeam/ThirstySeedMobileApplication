@@ -11,10 +11,6 @@ class PlotRepository {
     return await dataSource.fetchPlots();
     
   }
-  
-  Future<Plot> addPlot(Plot plot) async {
-    return await dataSource.createPlot(plot);
-  }
 
   
 }
