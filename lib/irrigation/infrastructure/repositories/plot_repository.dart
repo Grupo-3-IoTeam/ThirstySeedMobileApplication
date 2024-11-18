@@ -5,13 +5,13 @@ import '../data_sources/plot_data_source.dart';
 class PlotRepository {
   final PlotDataSource dataSource;
 
-  PlotRepository(this.dataSource);
+  PlotRepository({required this.dataSource});
 
   Future<List<Plot>> getPlots() async {
     return await dataSource.fetchPlots();
-    
   }
 
-  
+  Future<List<Plot>> getPlotsByUserId(int userId) async {
+    return await dataSource.getPlotsByUserId(userId);
+  }
 }
-

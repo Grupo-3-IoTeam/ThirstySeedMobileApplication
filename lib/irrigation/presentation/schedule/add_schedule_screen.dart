@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:thirstyseed/irrigation/domain/entities/schedule_entity.dart';
 import 'package:thirstyseed/irrigation/application/schedule_service.dart';
-import 'package:thirstyseed/irrigation/infrastructure/data_sources/schedule_data_source.dart';
-import 'package:thirstyseed/irrigation/infrastructure/repositories/schedule_repository.dart';
+import 'package:thirstyseed/irrigation/application/plot_service.dart';
+import 'package:thirstyseed/irrigation/domain/entities/plot_entity.dart';
 import 'package:thirstyseed/irrigation/presentation/schedule/schedule_list_screen.dart';
 
 class AddScheduleScreen extends StatefulWidget {
   final ScheduleService scheduleService;
+  final PlotService plotService;
   final Schedule? schedule;
 
-  const AddScheduleScreen({super.key, required this.scheduleService, this.schedule});
+  const AddScheduleScreen({
+    Key? key,
+    required this.scheduleService,
+    required this.plotService,
+    this.schedule,
+  }) : super(key: key);
 
   @override
   _AddScheduleScreenState createState() => _AddScheduleScreenState();
@@ -23,6 +29,8 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
   final _setTimeController = TextEditingController();
   final _angleController = TextEditingController();
   bool _isAutomatic = false;
+  Plot? _selectedPlot;
+  List<Plot> _plots = [];
 
   @override
   void initState() {
@@ -30,6 +38,7 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
     if (widget.schedule != null) {
       _populateFields(widget.schedule!);
     }
+    _loadPlots();
   }
 
   void _populateFields(Schedule schedule) {
@@ -54,6 +63,41 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
     _angleController.text = '90';
   }
 
+void _loadPlots() async {
+  try {
+    final plots = await widget.plotService.getPlotsByUserId();
+    setState(() {
+      _plots = plots;
+      if (widget.schedule != null) {
+        _selectedPlot = _plots.firstWhere(
+          (plot) => plot.id == widget.schedule!.plotId,
+          orElse: () => _plots.isNotEmpty
+              ? _plots.first
+              : Plot(
+                  id: 0,
+                  userId: 0,
+                  name: 'Plot no disponible',
+                  location: 'Ubicación desconocida',
+                  extension: 0,
+                  size: 0,
+                  status: 'Indefinido',
+                  imageUrl: '',
+                  createdAt: DateTime.now().toString(),
+                  updatedAt: DateTime.now().toString(),
+                ),
+        );
+      } else if (_plots.isNotEmpty) {
+        _selectedPlot = _plots.first; // Selecciona el primer plot si no hay uno ya seleccionado
+      }
+    });
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error al cargar los plots: $e')),
+    );
+  }
+}
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -66,21 +110,42 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (context) {
-                  final scheduleDataSource = ScheduleDataSource();
-                  final scheduleRepository = ScheduleRepository(dataSource: scheduleDataSource);
-                  final scheduleService = ScheduleService(repository: scheduleRepository);
-                  return ScheduleListScreen(scheduleService: scheduleService);
-                },
+                builder: (context) => ScheduleListScreen(
+                  scheduleService: widget.scheduleService,
+                  plotService: widget.plotService,
+                ),
               ),
             );
           },
         ),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
+            // Dropdown for selecting Plot
+            DropdownButtonFormField<Plot>(
+              value: _selectedPlot,
+              hint: const Text('Select Plot'),
+              items: _plots.map((Plot plot) {
+                return DropdownMenuItem<Plot>(
+                  value: plot,
+                  child: Text(plot.name ?? 'Plot sin nombre'),
+                );
+              }).toList(),
+              onChanged: (Plot? value) {
+                setState(() {
+                  _selectedPlot = value;
+                });
+              },
+              decoration: InputDecoration(
+                labelText: 'Plot',
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Switch for automatic schedule
             SwitchListTile(
               title: const Text('Automatic Schedule'),
               value: _isAutomatic,
@@ -111,12 +176,10 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
-                        builder: (context) {
-                          final scheduleDataSource = ScheduleDataSource();
-                          final scheduleRepository = ScheduleRepository(dataSource: scheduleDataSource);
-                          final scheduleService = ScheduleService(repository: scheduleRepository);
-                          return ScheduleListScreen(scheduleService: scheduleService);
-                        },
+                        builder: (context) => ScheduleListScreen(
+                          scheduleService: widget.scheduleService,
+                          plotService: widget.plotService,
+                        ),
                       ),
                     );
                   },
@@ -128,37 +191,37 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
                   child: const Text('Cancel', style: TextStyle(fontSize: 16, color: Colors.white)),
                 ),
                 ElevatedButton(
-                  onPressed: () async {
-                    final newSchedule = Schedule(
-                      id: widget.schedule?.id ?? 0,
-                      plotId: 1, // Por ahora, siempre será 1
-                      waterAmount: double.tryParse(_waterAmountController.text) ?? 0,
-                      pressure: double.tryParse(_pressureController.text) ?? 0,
-                      sprinklerRadius: double.tryParse(_sprinklerRadiusController.text) ?? 0,
-                      expectedMoisture: 70,
-                      estimatedTimeHours: double.tryParse(_estimatedTimeHoursController.text) ?? 0,
-                      setTime: _setTimeController.text,
-                      angle: double.tryParse(_angleController.text) ?? 0,
-                      isAutomatic: _isAutomatic,
-                    );
+                  onPressed: _selectedPlot != null
+                      ? () async {
+                          final newSchedule = Schedule(
+                            id: widget.schedule?.id ?? 0,
+                            plotId: _selectedPlot!.id, // Use selected Plot ID
+                            waterAmount: double.tryParse(_waterAmountController.text) ?? 0,
+                            pressure: double.tryParse(_pressureController.text) ?? 0,
+                            sprinklerRadius: double.tryParse(_sprinklerRadiusController.text) ?? 0,
+                            expectedMoisture: 70,
+                            estimatedTimeHours: double.tryParse(_estimatedTimeHoursController.text) ?? 0,
+                            setTime: _setTimeController.text,
+                            angle: double.tryParse(_angleController.text) ?? 0,
+                            isAutomatic: _isAutomatic,
+                          );
 
-                    if (widget.schedule == null) {
-                      await widget.scheduleService.createSchedule(newSchedule);
-                    } else {
-                      await widget.scheduleService.updateSchedule(newSchedule.id, newSchedule);
-                    }
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) {
-                          final scheduleDataSource = ScheduleDataSource();
-                          final scheduleRepository = ScheduleRepository(dataSource: scheduleDataSource);
-                          final scheduleService = ScheduleService(repository: scheduleRepository);
-                          return ScheduleListScreen(scheduleService: scheduleService);
-                        },
-                      ),
-                    );
-                  },
+                          if (widget.schedule == null) {
+                            await widget.scheduleService.createSchedule(newSchedule);
+                          } else {
+                            await widget.scheduleService.updateSchedule(newSchedule.id, newSchedule);
+                          }
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ScheduleListScreen(
+                                scheduleService: widget.scheduleService,
+                                plotService: widget.plotService,
+                              ),
+                            ),
+                          );
+                        }
+                      : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
                     padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 12.0),
@@ -175,14 +238,17 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
   }
 
   Widget _buildTextField(TextEditingController controller, String label, {bool enabled = true}) {
-    return TextField(
-      controller: controller,
-      enabled: enabled,
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: const TextStyle(color: Colors.green),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Colors.green)),
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Colors.green)),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: TextField(
+        controller: controller,
+        enabled: enabled,
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: const TextStyle(color: Colors.green),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+        ),
       ),
     );
   }

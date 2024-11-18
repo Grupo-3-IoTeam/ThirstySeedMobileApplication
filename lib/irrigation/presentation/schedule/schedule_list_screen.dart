@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:thirstyseed/irrigation/domain/entities/schedule_entity.dart';
 import 'package:thirstyseed/irrigation/application/schedule_service.dart';
-import 'package:thirstyseed/irrigation/infrastructure/data_sources/schedule_data_source.dart';
-import 'package:thirstyseed/irrigation/infrastructure/repositories/schedule_repository.dart';
+import 'package:thirstyseed/irrigation/application/plot_service.dart';
 import 'add_schedule_screen.dart';
 
 class ScheduleListScreen extends StatefulWidget {
   final ScheduleService scheduleService;
+  final PlotService plotService;
 
-  const ScheduleListScreen({Key? key, required this.scheduleService}) : super(key: key);
+  const ScheduleListScreen({Key? key, required this.scheduleService, required this.plotService}) : super(key: key);
 
   @override
   _ScheduleListScreenState createState() => _ScheduleListScreenState();
@@ -20,7 +20,7 @@ class _ScheduleListScreenState extends State<ScheduleListScreen> {
   @override
   void initState() {
     super.initState();
-    _schedulesFuture = widget.scheduleService.getAllSchedules();
+    _schedulesFuture = widget.scheduleService.getSchedulesByUserId();
   }
 
   @override
@@ -59,12 +59,13 @@ class _ScheduleListScreenState extends State<ScheduleListScreen> {
                             MaterialPageRoute(
                               builder: (context) => AddScheduleScreen(
                                 scheduleService: widget.scheduleService,
+                                plotService: widget.plotService,
                                 schedule: schedule,
                               ),
                             ),
                           ).then((_) {
                             setState(() {
-                              _schedulesFuture = widget.scheduleService.getAllSchedules();
+                              _schedulesFuture = widget.scheduleService.getSchedulesByUserId();
                             });
                           });
                         },
@@ -74,7 +75,7 @@ class _ScheduleListScreenState extends State<ScheduleListScreen> {
                         onPressed: () async {
                           await widget.scheduleService.deleteSchedule(schedule.id);
                           setState(() {
-                            _schedulesFuture = widget.scheduleService.getAllSchedules();
+                            _schedulesFuture = widget.scheduleService.getSchedulesByUserId();
                           });
                         },
                       ),
@@ -90,10 +91,15 @@ class _ScheduleListScreenState extends State<ScheduleListScreen> {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => AddScheduleScreen(scheduleService: widget.scheduleService)),
+            MaterialPageRoute(
+              builder: (context) => AddScheduleScreen(
+                scheduleService: widget.scheduleService,
+                plotService: widget.plotService,
+              ),
+            ),
           ).then((_) {
             setState(() {
-              _schedulesFuture = widget.scheduleService.getAllSchedules();
+              _schedulesFuture = widget.scheduleService.getSchedulesByUserId();
             });
           });
         },
@@ -101,12 +107,5 @@ class _ScheduleListScreenState extends State<ScheduleListScreen> {
         child: const Icon(Icons.add),
       ),
     );
-  }
-  
-  static ScheduleListScreen createWithDependencies() {
-    final scheduleDataSource = ScheduleDataSource();
-    final scheduleRepository = ScheduleRepository(dataSource: scheduleDataSource);
-    final scheduleService = ScheduleService(repository: scheduleRepository);
-    return ScheduleListScreen(scheduleService: scheduleService);
   }
 }

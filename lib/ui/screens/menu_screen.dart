@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:thirstyseed/iam/application/auth_service.dart';
 import 'package:thirstyseed/iam/presentation/login_screen.dart';
 import 'package:thirstyseed/iam/domain/entities/auth_entity.dart';
+import 'package:thirstyseed/irrigation/application/plot_service.dart';
 import 'package:thirstyseed/irrigation/application/schedule_service.dart';
 import 'package:thirstyseed/irrigation/domain/entities/node_entity.dart';
 import 'package:thirstyseed/irrigation/domain/entities/plot_entity.dart';
+import 'package:thirstyseed/irrigation/infrastructure/data_sources/plot_data_source.dart';
 import 'package:thirstyseed/irrigation/infrastructure/data_sources/schedule_data_source.dart';
+import 'package:thirstyseed/irrigation/infrastructure/repositories/plot_repository.dart';
 import 'package:thirstyseed/irrigation/infrastructure/repositories/schedule_repository.dart';
 import 'package:thirstyseed/irrigation/presentation/plot_screen.dart';
 import 'package:thirstyseed/irrigation/presentation/plot_status_screen.dart';
@@ -94,10 +97,10 @@ class MenuScreenState extends State<MenuScreen> {
                             fetchPlots: () async => [
                               Plot(
                                 id: 1,
+                                userId: 1,
                                 name: 'Parcela de Prueba',
                                 extension: 1200,
                                 installedNodes: 5,
-                                lastIrrigationDate: '2024-11-15',
                                 imageUrl: 'https://via.placeholder.com/150',
                                 location: 'Ubicación no registrada',
                                 status: 'OK',
@@ -115,7 +118,9 @@ class MenuScreenState extends State<MenuScreen> {
                                     indicator: 'Normal',
                                     status: 'Error',
                                   ),
-                                ],
+                                ], createdAt: '2021-10-01', 
+                                updatedAt: '2021-10-01',
+                                
                               ),
                             ],
                           ),
@@ -131,10 +136,14 @@ class MenuScreenState extends State<MenuScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) {
+
+                          final plotDataSource = PlotDataSource();
+                          final plotRepository = PlotRepository(dataSource: plotDataSource);
+                          final plotService = PlotService(repository: plotRepository);
                           final scheduleDataSource = ScheduleDataSource();
                           final scheduleRepository = ScheduleRepository(dataSource: scheduleDataSource);
                           final scheduleService = ScheduleService(repository: scheduleRepository);
-                          return ScheduleListScreen(scheduleService: scheduleService);
+                          return ScheduleListScreen(scheduleService: scheduleService, plotService: plotService,);
                         }),
                       );
                     },
