@@ -1,15 +1,14 @@
 import 'package:equatable/equatable.dart';
-
 class Schedule extends Equatable {
   final int id;
   final int plotId;
-  final int waterAmount; // Cantidad de agua en litros
-  final int pressure; // Presión del agua en bares
-  final int sprinklerRadius; // Radio del aspersor en metros
-  final int expectedMoisture; // Humedad esperada en porcentaje
-  final int estimatedTimeHours; // Tiempo estimado en horas
+  final double waterAmount; // Cantidad de agua en litros
+  final double pressure; // Presión del agua en bares
+  final double sprinklerRadius; // Radio del aspersor en metros
+  final double expectedMoisture; // Humedad esperada en porcentaje
+  final double estimatedTimeHours; // Tiempo estimado en horas
   final String setTime; // Hora programada para el riego
-  final int angle; // Ángulo de riego en grados
+  final double angle; // Ángulo de riego en grados
   final bool isAutomatic; // Indica si el riego es automático
 
   const Schedule({
@@ -44,13 +43,13 @@ class Schedule extends Equatable {
     return Schedule(
       id: json['id'] ?? 0,
       plotId: json['plotId'] ?? 0,
-      waterAmount: json['waterAmount'] ?? 0,
-      pressure: json['pressure'] ?? 0,
-      sprinklerRadius: json['sprinklerRadius'] ?? 0,
-      expectedMoisture: json['expectedMoisture'] ?? 0,
-      estimatedTimeHours: json['estimatedTimeHours'] ?? 0,
+      waterAmount: (json['waterAmount'] ?? 0).toDouble(),
+      pressure: (json['pressure'] ?? 0).toDouble(),
+      sprinklerRadius: (json['sprinklerRadius'] ?? 0).toDouble(),
+      expectedMoisture: (json['expectedMoisture'] ?? 0).toDouble(),
+      estimatedTimeHours: (json['estimatedTimeHours'] ?? 0).toDouble(),
       setTime: json['setTime'] ?? '',
-      angle: json['angle'] ?? 0,
+      angle: (json['angle'] ?? 0).toDouble(),
       isAutomatic: json['isAutomatic'] ?? false,
     );
   }

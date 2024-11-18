@@ -132,13 +132,13 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
                     final newSchedule = Schedule(
                       id: widget.schedule?.id ?? 0,
                       plotId: 1, // Por ahora, siempre será 1
-                      waterAmount: int.tryParse(_waterAmountController.text) ?? 0,
-                      pressure: int.tryParse(_pressureController.text) ?? 0,
-                      sprinklerRadius: int.tryParse(_sprinklerRadiusController.text) ?? 0,
+                      waterAmount: double.tryParse(_waterAmountController.text) ?? 0,
+                      pressure: double.tryParse(_pressureController.text) ?? 0,
+                      sprinklerRadius: double.tryParse(_sprinklerRadiusController.text) ?? 0,
                       expectedMoisture: 70,
-                      estimatedTimeHours: int.tryParse(_estimatedTimeHoursController.text) ?? 0,
+                      estimatedTimeHours: double.tryParse(_estimatedTimeHoursController.text) ?? 0,
                       setTime: _setTimeController.text,
-                      angle: int.tryParse(_angleController.text) ?? 0,
+                      angle: double.tryParse(_angleController.text) ?? 0,
                       isAutomatic: _isAutomatic,
                     );
 
