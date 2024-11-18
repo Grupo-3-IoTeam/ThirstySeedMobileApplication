@@ -4,7 +4,7 @@ import 'package:thirstyseed/iam/presentation/login_screen.dart';
 import 'package:thirstyseed/profile/domain/entities/profile_entity.dart';
 
 class AccountScreen extends StatelessWidget {
-  final ProfileEntity user;
+  final ProfileEntityGet user;
   final AuthService authService;
 
   const AccountScreen({Key? key, required this.user, required this.authService}) : super(key: key);

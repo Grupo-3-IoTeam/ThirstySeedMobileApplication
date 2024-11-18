@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:thirstyseed/subscription/presentation/select_plan_screen.dart';
+import 'package:thirstyseed/common/user_session.dart';
 import '../application/profile_service.dart';
 import '../domain/entities/profile_entity.dart';
+import '../../subscription/presentation/select_plan_screen.dart';
 
 class CreateProfileScreen extends StatefulWidget {
   final ProfileService profileService;
-  final int userId;
 
   const CreateProfileScreen({
     Key? key,
     required this.profileService,
-    required this.userId,
   }) : super(key: key);
 
   @override
@@ -29,9 +28,8 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
 
   Future<void> _createProfile() async {
     try {
-      final newProfile = ProfileEntity(
-        id: 0,
-        userId: widget.userId,
+      final newProfile = ProfileEntityPost(
+        userId: UserSession().getUserId()?? 0,
         firstName: _nameController.text.trim(),
         lastName: _lastNameController.text.trim(),
         email: _emailController.text.trim(),
@@ -99,7 +97,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => SelectPlanScreen(userId: widget.userId),
+                        builder: (context) => SelectPlanScreen(userId: UserSession().getUserId()?? 0),
                       ),
                     );
                   },

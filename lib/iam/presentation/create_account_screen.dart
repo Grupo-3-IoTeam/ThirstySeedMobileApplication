@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:thirstyseed/common/user_session.dart';
 import '../application/auth_service.dart';
 import '../domain/entities/auth_entity.dart';
 import '../../profile/presentation/create_profile_screen.dart';
@@ -30,7 +31,8 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
     final createdUser = await widget.authService.signup(newUser);
 
        if (createdUser != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
+        UserSession().setUserId(createdUser.id);
+        ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Cuenta creada exitosamente')),
       );
         // Navega a la pantalla de creación de perfil
@@ -41,7 +43,6 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
             profileService: ProfileService(
               dataSource: ProfileDataSource(),
             ),
-            userId: createdUser.id, // Pasa el ID del usuario creado
           ),
         ),
       );
